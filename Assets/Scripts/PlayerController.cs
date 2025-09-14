@@ -1,49 +1,41 @@
+using Fusion;
+using Structs;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(NetworkObject))]
+[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(NetworkCharacterController))]
+public class PlayerController : NetworkBehaviour
+{
+    private NetworkCharacterController _ncc;
+    private NetworkButtons _lastBtns;
 
-public class PlayerController : MonoBehaviour {
-    private Rigidbody _rb; // Reference to the Rigidbody component
-    private float _movementX;
-    private float _movementY;
-    [SerializeField] private float speed = 10f; // Speed multiplier for movement
-    
-    
-    [Header("Salto")]
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private Transform groundCheck;  // un empty en los pies
-    [SerializeField] private float groundRadius = 0.2f;
-    [SerializeField] private LayerMask groundMask;   // capa del suelo
-    
-    private bool _isGrounded;
-    
-    void Start() {
-        _rb = GetComponent<Rigidbody>(); // Initialize the Rigidbody reference
-    }
-    
-    void Update() {
-        _isGrounded = Physics.CheckSphere(groundCheck.position, groundRadius, groundMask); // Check if the player is grounded
+    [SerializeField] private float walkSpeed = 6f;
+    [SerializeField] private float sprintSpeed = 10f;
+
+    public override void Spawned()
+    {
+        _ncc = GetComponent<NetworkCharacterController>();
+        _ncc.Velocity = Vector3.zero; 
+        Debug.Log($"[CC] Spawned | StateAuth={Object.HasStateAuthority} | InputAuth={HasInputAuthority}");
     }
 
-    void OnMove(InputValue movementValue) {
-    
-        Vector2 movementVector = movementValue.Get<Vector2>();
-        
-        _movementX = movementVector.x;
-        _movementY = movementVector.y;
-    }
-
-    void OnJump(InputValue jumpValue) {
-        if (jumpValue.isPressed && _isGrounded)
+    public override void FixedUpdateNetwork()
+    {
+        if (GetInput(out NetInputData input))
         {
-            _rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            var speed = input.Buttons.IsSet(NetInputData.BUTTON_SPRINT) ? sprintSpeed : walkSpeed;
+            var dir = new Vector3(input.Move.x, 0, input.Move.y);
+            if (dir.sqrMagnitude > 1f) dir.Normalize();
+            dir *= speed;
+
+            // mueve respetando gravedad/step offset del NCC
+            _ncc.Move(dir * Runner.DeltaTime);
+
+            if (input.Buttons.WasPressed(_lastBtns, NetInputData.BUTTON_JUMP))
+                _ncc.Jump(); // usa JumpImpulse del NCC
+
+            _lastBtns = input.Buttons;
         }
-        
     }
-
-    void FixedUpdate() {
-        Vector3 movement = new Vector3(_movementX, 0, _movementY);
-        _rb.AddForce(movement * speed); // Apply force based on input
-    }
-
 }
