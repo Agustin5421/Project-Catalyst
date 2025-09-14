@@ -1,8 +1,7 @@
 using System;
 using Fusion;
 
-namespace Structs
-{
+namespace Structs {
     [Serializable]
     public struct NetInputData : INetworkInput {
         public UnityEngine.Vector2 Move;   
