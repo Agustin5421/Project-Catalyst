@@ -129,12 +129,6 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
 
         var data = new NetInputData { Move = _localInput.Move };
 
-        if (_localInput.SprintHeld)
-            data.Buttons.Set(NetInputData.BUTTON_SPRINT, true);
-
-        if (_localInput.JumpPressedThisFrame)
-            data.Buttons.Set(NetInputData.BUTTON_JUMP, true);
-
         input.Set(data);
     }
 
