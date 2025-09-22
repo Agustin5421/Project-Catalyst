@@ -46,6 +46,8 @@ GameObject:
   - component: {fileID: 1439435933179755579}
   - component: {fileID: -2619165432855632899}
   - component: {fileID: 5331929291932932152}
+  - component: {fileID: 7000607767719167225}
+  - component: {fileID: 2907170902841377911}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -62,7 +64,7 @@ Transform:
   m_GameObject: {fileID: 8485779231971945138}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -84,6 +86,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   walkSpeed: 10
   sprintSpeed: 20
+  gravity: -9.81
+  rotationSpeed: 15
 --- !u!114 &8662791331761705132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,6 +137,8 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 2193930618269702019}
   - {fileID: -2619165432855632899}
+  - {fileID: 7000607767719167225}
+  - {fileID: 2907170902841377911}
   - {fileID: 6940545407832082621}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &1439435933179755579
@@ -154,12 +160,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.5
+  m_Radius: 0.25
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &-2619165432855632899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -194,6 +200,38 @@ MonoBehaviour:
   Move: {x: 0, y: 0}
   JumpPressedThisFrame: 0
   SprintHeld: 0
+--- !u!114 &7000607767719167225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8485779231971945138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
+  animator: {fileID: 0}
+  ncc: {fileID: 0}
+  playerController: {fileID: 0}
+  animDampTime: 0.1
+--- !u!114 &2907170902841377911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8485779231971945138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a1963c43b33b294f8e1cb0454b07478, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCameraBinder
+  cameraPrefab: {fileID: 1110891682306579864, guid: 343a42afc89d0d643a039b0172d24ee0, type: 3}
+  yawPivot: {fileID: 9164693991642522734}
+  pitchPivot: {fileID: 9164693991642522734}
+  headTarget: {fileID: 9164693991642522734}
 --- !u!1001 &5077391671423199328
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -264,9 +302,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3210446083602342362}
-    - targetCorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 4198737199348790606}
     - targetCorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
       insertIndex: -1
@@ -282,29 +317,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
   m_PrefabInstance: {fileID: 5077391671423199328}
   m_PrefabAsset: {fileID: 0}
---- !u!136 &3210446083602342362
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 947882362609900838}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.27
-  m_Height: 1.97
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!95 &4198737199348790606
 Animator:
   serializedVersion: 7
@@ -339,6 +351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
-  walkEnterSpeed: 0.01
-  walkExitSpeed: 0
   animator: {fileID: 4198737199348790606}
+  ncc: {fileID: 0}
+  playerController: {fileID: 0}
+  animDampTime: 0.1

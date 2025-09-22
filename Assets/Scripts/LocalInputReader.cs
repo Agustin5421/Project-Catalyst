@@ -6,6 +6,7 @@ public class LocalInputReader : MonoBehaviour
     public Vector2 Move;
     public bool JumpPressedThisFrame;
     public bool SprintHeld;
+    
 
     void OnMove(InputValue v) {
         Move = v.Get<Vector2>();
@@ -24,9 +25,6 @@ public class LocalInputReader : MonoBehaviour
     }
 
     void LateUpdate() {
-        // reset edge del salto al final del frame
-        if (JumpPressedThisFrame)
-            Debug.Log("[InputReader] LateUpdate → reset JumpPressedThisFrame");
         JumpPressedThisFrame = false;
     }
 }
