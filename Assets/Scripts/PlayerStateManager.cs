@@ -2,6 +2,7 @@ using Fusion;
 using UnityEngine;
 
 public class PlayerStateManager : NetworkBehaviour {
+    /*
     static readonly int Speed = Animator.StringToHash("Speed");
     [SerializeField] Animator animator;
     [SerializeField] NetworkCharacterController ncc;
@@ -34,4 +35,6 @@ public class PlayerStateManager : NetworkBehaviour {
         
         Debug.Log(" speed:" + PlanarSpeed);
     }
+    */
+    
 }

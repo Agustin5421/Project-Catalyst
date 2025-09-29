@@ -40,6 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9164693991642522734}
+  - component: {fileID: -5248004539656808144}
   - component: {fileID: 2193930618269702019}
   - component: {fileID: 8662791331761705132}
   - component: {fileID: 1278068942430931336}
@@ -72,7 +73,7 @@ Transform:
   - {fileID: 402620607197924075}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2193930618269702019
+--- !u!114 &-5248004539656808144
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -80,6 +81,20 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8485779231971945138}
   m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d551ca779a7f47deae678a56a9c66651, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine.PlayerStateMachine
+  sprintMultiplier: 4
+  gravity: -9.81
+--- !u!114 &2193930618269702019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8485779231971945138}
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f949d39e61bd7488cb8314a564e780c4, type: 3}
   m_Name: 
@@ -207,15 +222,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8485779231971945138}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
-  animator: {fileID: 0}
-  ncc: {fileID: 0}
-  playerController: {fileID: 0}
-  animDampTime: 0.1
 --- !u!114 &2907170902841377911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,7 +362,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
-  animator: {fileID: 4198737199348790606}
-  ncc: {fileID: 0}
-  playerController: {fileID: 0}
-  animDampTime: 0.1
