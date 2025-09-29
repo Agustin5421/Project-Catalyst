@@ -40,13 +40,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9164693991642522734}
-  - component: {fileID: -5248004539656808144}
   - component: {fileID: 8662791331761705132}
   - component: {fileID: 1278068942430931336}
   - component: {fileID: 1439435933179755579}
   - component: {fileID: -2619165432855632899}
-  - component: {fileID: 5331929291932932152}
+  - component: {fileID: 5807742704814417808}
   - component: {fileID: 2907170902841377911}
+  - component: {fileID: 4912521206918695418}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -71,20 +71,6 @@ Transform:
   - {fileID: 402620607197924075}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-5248004539656808144
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8485779231971945138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d551ca779a7f47deae678a56a9c66651, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine.PlayerStateMachine
-  sprintMultiplier: 4
-  gravity: -9.81
 --- !u!114 &8662791331761705132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,8 +118,8 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: -5248004539656808144}
   - {fileID: -2619165432855632899}
+  - {fileID: 5807742704814417808}
   - {fileID: 2907170902841377911}
   - {fileID: 6940545407832082621}
   ForceRemoteRenderTimeframe: 0
@@ -176,26 +162,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Fusion.Unity::Fusion.NetworkCharacterController
   _stateAuthorityChangeErrorCorrectionDelta: 0
   gravity: -9.81
-  jumpImpulse: 0
+  jumpImpulse: 8
   acceleration: 10
   braking: 10
   maxSpeed: 5
   rotationSpeed: 15
---- !u!114 &5331929291932932152
+--- !u!114 &5807742704814417808
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8485779231971945138}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e3229a67cff54229b226250dd91e7e1, type: 3}
+  m_Script: {fileID: 11500000, guid: d551ca779a7f47deae678a56a9c66651, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LocalInputReader
-  Move: {x: 0, y: 0}
-  JumpPressedThisFrame: 0
-  SprintHeld: 0
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine.PlayerStateMachine
+  characterController: {fileID: 0}
+  sprintMultiplier: 4
 --- !u!114 &2907170902841377911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,6 +197,19 @@ MonoBehaviour:
   yawPivot: {fileID: 9164693991642522734}
   pitchPivot: {fileID: 9164693991642522734}
   headTarget: {fileID: 9164693991642522734}
+--- !u!114 &4912521206918695418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8485779231971945138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05f130d3bec04a3aa5e5d24f35f7f3be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine.InputProvider
+  _runner: {fileID: 0}
 --- !u!1001 &5077391671423199328
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -331,7 +329,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
-  animator: {fileID: 0}
+  animator: {fileID: 4198737199348790606}
   ncc: {fileID: 0}
   playerController: {fileID: 0}
   animDampTime: 0.1

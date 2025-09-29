@@ -8,9 +8,6 @@ namespace PlayerStateMachine {
 
         public override void EnterState() {
             Debug.Log("Entered GroundedState");
-
-            _ctx.CurrentMovementY = _ctx.GroundedGravity;
-            _ctx.AppliedMovementY = _ctx.GroundedGravity;
         }
 
         public override void UpdateState() {

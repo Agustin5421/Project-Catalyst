@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Fusion;
 using UnityEngine;
 
 namespace PlayerStateMachine {
@@ -18,7 +19,6 @@ namespace PlayerStateMachine {
 
         public override void UpdateState() {
             CheckSwitchStates();
-            HandleGravity();
         }
         
         public override void ExitState() {
@@ -26,26 +26,24 @@ namespace PlayerStateMachine {
             _ctx.IsJumpAnimating = false;
             _ctx.CurrentJumpResetRoutine = _ctx.StartCoroutine(IJumpResetRoutine());
 
-            if (_ctx.JumpCount == 3)
-            {
+            if (_ctx.JumpCount == 3) {
                 _ctx.JumpCount = 0;
                 //_ctx.Animator.SetInteger(_ctx.JumpCountHash, _ctx.JumpCount);
             }
             
             Debug.Log("Exiting jump state");
-
         }
 
 
         public override void CheckSwitchStates() {
-            if (_ctx.characterController.isGrounded) {
+            if (_ctx.characterController.Grounded) {
                 SwitchState(_factory.Grounded());
             }
         }
 
         public override void InitializeSubState() {
         }
-        
+        /*
         void HandleJump() {
             if (_ctx.JumpCount < 3 && _ctx.CurrentJumpResetRoutine != null) {
                 _ctx.StopCoroutine(_ctx.CurrentJumpResetRoutine);
@@ -55,24 +53,36 @@ namespace PlayerStateMachine {
             _ctx.IsJumping = true;
             _ctx.JumpCount += 1;
             //_ctx.Animator.SetInteger(_ctx.JumpCountHash, _ctx.JumpCount);
-            _ctx.CurrentMovementY = _ctx.InitialJumpVelocities[_ctx.JumpCount];
-            _ctx.AppliedMovementY = _ctx.InitialJumpVelocities[_ctx.JumpCount];
+            
+            var ncc = _ctx.GetComponent<NetworkCharacterController>();
+            if (ncc != null && ncc.jumpImpulse > 0) {
+                _ctx.CurrentMovementY = ncc.jumpImpulse;
+                _ctx.AppliedMovementY = ncc.jumpImpulse;
+                
+                Debug.Log("Applied Jump!!");
+            } else {
+                Debug.Log("Couldn't get ncc or jumpinpulse is 0");
+            }
         }
+        */
         
-        void HandleGravity() {
-            bool isFalling = _ctx.CurrentMovementY <= 0.0f || !_ctx.IsJumpPressed;
-            const float fallMultiplier = 2.0f;
+        void HandleJump() {
+            if (_ctx.JumpCount < 3 && _ctx.CurrentJumpResetRoutine != null) {
+                _ctx.StopCoroutine(_ctx.CurrentJumpResetRoutine);
+            }
 
-            if (isFalling) {
-                float previousYVelocity = _ctx.CurrentMovementY;
-                _ctx.CurrentMovementY += _ctx.JumpGravities[_ctx.JumpCount] * fallMultiplier * Time.deltaTime;
-                _ctx.AppliedMovementY = Mathf.Max((previousYVelocity + _ctx.CurrentMovementY) * 0.5f, -20.0f);
-            }
-            else {
-                float previousYVelocity = _ctx.CurrentMovementY;
-                _ctx.CurrentMovementY += _ctx.JumpGravities[_ctx.JumpCount] * Time.deltaTime;
-                _ctx.AppliedMovementY = (previousYVelocity + _ctx.CurrentMovementY) * 0.5f;
-            }
+            _ctx.IsJumping = true;
+            _ctx.JumpCount += 1;
+    
+            var ncc = _ctx.GetComponent<NetworkCharacterController>();
+            if (ncc == null) return;
+            Vector3 currentVelocity = ncc.Velocity;
+        
+            currentVelocity.y = ncc.jumpImpulse > 0 ? ncc.jumpImpulse : 8f;
+        
+            ncc.Velocity = currentVelocity;
+        
+            Debug.Log($"Applied Jump with velocity: {currentVelocity.y}");
         }
 
     }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Fusion;
 using Fusion.Sockets;
-using Structs;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -108,7 +107,6 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {
         Debug.Log("[Spawner] OnConnectFailed for player " + remoteAddress + " reason=" + reason);
-        
     }
 
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
@@ -116,7 +114,10 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
+    
+    public void OnInput(NetworkRunner runner, NetworkInput input) { }
 
+    /*
     public void OnInput(NetworkRunner runner, NetworkInput input) {
         if (_localInput is null) {
             if (runner.TryGetPlayerObject(runner.LocalPlayer, out var playerObj)) {
@@ -135,6 +136,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
         
         input.Set(data);
     }
+    */
 
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }

@@ -2,12 +2,11 @@
 using Fusion;
 using Structs;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace PlayerStateMachine {
     // The PlayerStateMachine manages the different states of the player character, it is considered the context.
     public class PlayerStateMachine : NetworkBehaviour {
-        public CharacterController characterController;
+        public NetworkCharacterController characterController;
         //Animator _animator;
         InputSystem_Actions _playerInput;
         
@@ -25,8 +24,6 @@ namespace PlayerStateMachine {
         // constants
         [SerializeField]
         float sprintMultiplier = 4.0f;
-        [SerializeField]
-        float gravity = -9.81f;
         
         // jumping variables
         bool _isJumpPressed = false;
@@ -38,12 +35,9 @@ namespace PlayerStateMachine {
         bool _isJumpAnimating = false;
 
         Dictionary<int, float> _initialJumpVelocities = new Dictionary<int, float>();
-        Dictionary<int, float> _jumpGravities = new Dictionary<int, float>();
 
         // state variables
         PlayerStateFactory _states;
-        [SerializeField]
-        float _groundedGravity = -9.81f;
 
         // getter and setters
         public PlayerBaseState CurrentState { get; set; }
@@ -58,18 +52,13 @@ namespace PlayerStateMachine {
         public bool IsJumping { set { _isJumping = value; } }
         public float CurrentMovementY { get { return _currentMovement.y; } set { _currentMovement.y = value; } }
         public float AppliedMovementY { get { return _appliedMovement.y; } set { _appliedMovement.y = value; } }
-        
-        //TODO: check later
-        public float GroundedGravity { get {return _groundedGravity; } }
-        
-        public Dictionary<int, float> JumpGravities { get { return _jumpGravities; } }
 
 
         // Awake is called earlier than Start in Unity's event life cycle
         void Awake() {
             // initially set reference variables
             _playerInput = new InputSystem_Actions();
-            characterController = GetComponent<CharacterController>();
+            characterController = GetComponent<NetworkCharacterController>();
             //_animator = GetComponent<Animator>();
             
             // setup state
@@ -101,27 +90,17 @@ namespace PlayerStateMachine {
         }
         
         
-        // set the initial velocity and gravity using jump heights and durations
+        // setup jump variables for multi-jump system
         void SetupJumpVariables() {
             float timeToApex = _maxJumpTime / 2;
-
-            gravity = (-2 * _maxJumpHeight) / Mathf.Pow(timeToApex, 2);
             _initialJumpVelocity = (2 * _maxJumpHeight) / timeToApex;
 
-            float secondJumpGravity = (-2 * (_maxJumpHeight + 2)) / Mathf.Pow(timeToApex * 1.25f, 2);
             float secondJumpInitialVelocity = (2 * (_maxJumpHeight + 2)) / (timeToApex * 1.25f);
-
-            float thirdJumpGravity = (-2 * (_maxJumpHeight + 4)) / Mathf.Pow(timeToApex * 1.5f, 2);
             float thirdJumpInitialVelocity = (2 * (_maxJumpHeight + 4)) / (timeToApex * 1.5f);
 
             _initialJumpVelocities.Add(1, _initialJumpVelocity);
             _initialJumpVelocities.Add(2, secondJumpInitialVelocity);
             _initialJumpVelocities.Add(3, thirdJumpInitialVelocity);
-
-            _jumpGravities.Add(0, gravity);
-            _jumpGravities.Add(1, gravity);
-            _jumpGravities.Add(2, secondJumpGravity);
-            _jumpGravities.Add(3, thirdJumpGravity);
         }
 
         void OnEnable() {
@@ -132,19 +111,6 @@ namespace PlayerStateMachine {
             _playerInput.Player.Disable();
         }
         
-
-        /*
-        public override void OnInput(NetworkRunner runner, NetworkInput input) {
-            if (!Object.HasInputAuthority) return;
-
-            NetInputData data = new NetInputData { Move = _currentMovementInput };
-
-            input.Set(data);
-        }
-        
-
-
-
         /*
         void HandleRotation() {
             Vector3 positionToLookAt;
