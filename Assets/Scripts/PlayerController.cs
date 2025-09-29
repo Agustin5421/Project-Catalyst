@@ -27,6 +27,7 @@ public class PlayerController : NetworkBehaviour {
         Debug.Log($"[CC] Spawned | StateAuth={Object.HasStateAuthority} | InputAuth={HasInputAuthority} | IsServer={Runner.IsServer}");
     }
 
+    /*
     public override void FixedUpdateNetwork() {
         if (!GetInput(out NetInputData input)) return;
         
@@ -65,4 +66,5 @@ public class PlayerController : NetworkBehaviour {
         
         _lastBtns = input.Buttons;
     }
+    */
 }

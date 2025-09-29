@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Fusion;
+using Structs;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace PlayerStateMachine {
-    // The PlayerStateMachine class manages the different states of the player character, it is considered the context in the State Design Pattern.
-    public class PlayerStateMachine : MonoBehaviour {
-        CharacterController _characterController;
-        Animator _animator;
+    // The PlayerStateMachine manages the different states of the player character, it is considered the context.
+    public class PlayerStateMachine : NetworkBehaviour {
+        public CharacterController characterController;
+        //Animator _animator;
         InputSystem_Actions _playerInput;
         
         // input values
@@ -41,12 +42,13 @@ namespace PlayerStateMachine {
 
         // state variables
         PlayerStateFactory _states;
-        PlayerBaseState _currentState;
-        
+        [SerializeField]
+        float _groundedGravity = -9.81f;
+
         // getter and setters
         public PlayerBaseState CurrentState { get; set; }
         public bool IsJumpPressed { get { return _isJumpPressed; } }
-        public Animator Animator { get { return _animator; } }
+        //public Animator Animator { get { return _animator; } }
         public Coroutine CurrentJumpResetRoutine { get; set; } = null;
         public Dictionary<int, float> InitialJumpVelocities { get { return _initialJumpVelocities; } }
         public int JumpCount { get; set; } = 0;
@@ -56,14 +58,19 @@ namespace PlayerStateMachine {
         public bool IsJumping { set { _isJumping = value; } }
         public float CurrentMovementY { get { return _currentMovement.y; } set { _currentMovement.y = value; } }
         public float AppliedMovementY { get { return _appliedMovement.y; } set { _appliedMovement.y = value; } }
+        
+        //TODO: check later
+        public float GroundedGravity { get {return _groundedGravity; } }
+        
+        public Dictionary<int, float> JumpGravities { get { return _jumpGravities; } }
 
 
         // Awake is called earlier than Start in Unity's event life cycle
         void Awake() {
             // initially set reference variables
             _playerInput = new InputSystem_Actions();
-            _characterController = GetComponent<CharacterController>();
-            _animator = GetComponent<Animator>();
+            characterController = GetComponent<CharacterController>();
+            //_animator = GetComponent<Animator>();
             
             // setup state
             _states = new PlayerStateFactory(this);
@@ -75,37 +82,22 @@ namespace PlayerStateMachine {
             _isRunningHash = Animator.StringToHash("isRunning");
             IsJumpingHash = Animator.StringToHash("isJumping");
             _jumpCountHash = Animator.StringToHash("jumpCount");
-
-            // set the player input callbacks
-            _playerInput.Player.Move.started += OnMove;
-            _playerInput.Player.Move.canceled += OnMove;
-            _playerInput.Player.Move.performed += OnMove;
-            _playerInput.Player.Sprint.started += OnSprint;
-            _playerInput.Player.Sprint.canceled += OnSprint;
-            _playerInput.Player.Jump.started += OnJump;
-            _playerInput.Player.Jump.canceled += OnJump;
-
+            
             SetupJumpVariables();
         }
         
         // Update is called once per frame
-        void Update() {
+        public override void FixedUpdateNetwork() { 
+            if (GetInput(out NetInputData data)) {
+                _currentMovementInput = data.Move;
+                _isJumpPressed        = data.Jump;
+                _isSprintPressed      = data.Sprint;
+                _isMovementPressed    = _currentMovementInput != Vector2.zero;
+            }
+            
             //HandleRotation(); TODO: check later
-            _currentState.UpdateState();
-            _characterController.Move(_appliedMovement * Time.deltaTime);
-        }
-        
-        void OnMove(InputAction.CallbackContext context) {
-            _currentMovementInput = context.ReadValue<Vector2>();
-            _isMovementPressed = _currentMovementInput.x != 0 || _currentMovementInput.y != 0;
-        }
-        
-        void OnJump(InputAction.CallbackContext context) {
-            _isJumpPressed = context.ReadValueAsButton();
-        }
-        
-        void OnSprint(InputAction.CallbackContext context) {
-            _isSprintPressed = context.ReadValueAsButton();
+            CurrentState.UpdateState();
+            characterController.Move(_appliedMovement * Time.deltaTime);
         }
         
         
@@ -122,7 +114,7 @@ namespace PlayerStateMachine {
             float thirdJumpGravity = (-2 * (_maxJumpHeight + 4)) / Mathf.Pow(timeToApex * 1.5f, 2);
             float thirdJumpInitialVelocity = (2 * (_maxJumpHeight + 4)) / (timeToApex * 1.5f);
 
-            _initialJumpVelocities.Add(0, _initialJumpVelocity);
+            _initialJumpVelocities.Add(1, _initialJumpVelocity);
             _initialJumpVelocities.Add(2, secondJumpInitialVelocity);
             _initialJumpVelocities.Add(3, thirdJumpInitialVelocity);
 
@@ -139,6 +131,19 @@ namespace PlayerStateMachine {
         void OnDisable() {
             _playerInput.Player.Disable();
         }
+        
+
+        /*
+        public override void OnInput(NetworkRunner runner, NetworkInput input) {
+            if (!Object.HasInputAuthority) return;
+
+            NetInputData data = new NetInputData { Move = _currentMovementInput };
+
+            input.Set(data);
+        }
+        
+
+
 
         /*
         void HandleRotation() {

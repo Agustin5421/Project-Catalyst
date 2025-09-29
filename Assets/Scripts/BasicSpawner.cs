@@ -127,8 +127,12 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
 
         if (_localInput is null) return;
 
-        var data = new NetInputData { Move = _localInput.Move };
-
+        var data = new NetInputData {
+            Move   = _localInput.Move,
+            Jump   = _localInput.JumpPressedThisFrame,
+            Sprint = _localInput.SprintHeld
+        };
+        
         input.Set(data);
     }
 

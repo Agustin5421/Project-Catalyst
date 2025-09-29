@@ -41,13 +41,11 @@ GameObject:
   m_Component:
   - component: {fileID: 9164693991642522734}
   - component: {fileID: -5248004539656808144}
-  - component: {fileID: 2193930618269702019}
   - component: {fileID: 8662791331761705132}
   - component: {fileID: 1278068942430931336}
   - component: {fileID: 1439435933179755579}
   - component: {fileID: -2619165432855632899}
   - component: {fileID: 5331929291932932152}
-  - component: {fileID: 7000607767719167225}
   - component: {fileID: 2907170902841377911}
   m_Layer: 0
   m_Name: Player
@@ -87,22 +85,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine.PlayerStateMachine
   sprintMultiplier: 4
   gravity: -9.81
---- !u!114 &2193930618269702019
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8485779231971945138}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f949d39e61bd7488cb8314a564e780c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  walkSpeed: 10
-  sprintSpeed: 20
-  gravity: -9.81
-  rotationSpeed: 15
 --- !u!114 &8662791331761705132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,9 +132,8 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 2193930618269702019}
+  - {fileID: -5248004539656808144}
   - {fileID: -2619165432855632899}
-  - {fileID: 7000607767719167225}
   - {fileID: 2907170902841377911}
   - {fileID: 6940545407832082621}
   ForceRemoteRenderTimeframe: 0
@@ -207,7 +188,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8485779231971945138}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5e3229a67cff54229b226250dd91e7e1, type: 3}
   m_Name: 
@@ -215,18 +196,6 @@ MonoBehaviour:
   Move: {x: 0, y: 0}
   JumpPressedThisFrame: 0
   SprintHeld: 0
---- !u!114 &7000607767719167225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8485779231971945138}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
 --- !u!114 &2907170902841377911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -362,3 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
+  animator: {fileID: 0}
+  ncc: {fileID: 0}
+  playerController: {fileID: 0}
+  animDampTime: 0.1

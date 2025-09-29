@@ -8,6 +8,9 @@ namespace PlayerStateMachine {
 
         public override void EnterState() {
             Debug.Log("Entered GroundedState");
+
+            _ctx.CurrentMovementY = _ctx.GroundedGravity;
+            _ctx.AppliedMovementY = _ctx.GroundedGravity;
         }
 
         public override void UpdateState() {
@@ -15,7 +18,7 @@ namespace PlayerStateMachine {
         }
 
         public override void ExitState() {
-            throw new NotImplementedException();
+            Debug.Log("Exiting GroundedState");
         }
 
         public override void CheckSwitchStates() {
@@ -26,7 +29,6 @@ namespace PlayerStateMachine {
         }
 
         public override void InitializeSubState() {
-            throw new NotImplementedException();
         }
     }
 }

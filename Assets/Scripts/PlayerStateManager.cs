@@ -2,7 +2,6 @@ using Fusion;
 using UnityEngine;
 
 public class PlayerStateManager : NetworkBehaviour {
-    /*
     static readonly int Speed = Animator.StringToHash("Speed");
     [SerializeField] Animator animator;
     [SerializeField] NetworkCharacterController ncc;
@@ -11,8 +10,6 @@ public class PlayerStateManager : NetworkBehaviour {
     
     [Networked] float PlanarSpeed { get; set; }
     
-
-
     public override void Spawned() {
         ncc = GetComponent<NetworkCharacterController>();
         playerController = GetComponent<PlayerController>();
@@ -33,8 +30,6 @@ public class PlayerStateManager : NetworkBehaviour {
         
         animator.SetFloat(Speed, PlanarSpeed , animDampTime, Runner.DeltaTime);
         
-        Debug.Log(" speed:" + PlanarSpeed);
+        //Debug.Log(" speed:" + PlanarSpeed);
     }
-    */
-    
 }
