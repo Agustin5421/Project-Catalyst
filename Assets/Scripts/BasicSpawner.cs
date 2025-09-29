@@ -13,8 +13,6 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
     [SerializeField] private NetworkPrefabRef playerPrefab; // player prefab to spawn
     private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
     
-    private LocalInputReader _localInput;  
-    
     [SerializeField] private Transform spawnPoint; 
 
     // Creates and starts a new Fusion session (Host or Client).

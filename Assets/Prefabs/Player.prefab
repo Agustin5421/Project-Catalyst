@@ -121,7 +121,6 @@ MonoBehaviour:
   - {fileID: -2619165432855632899}
   - {fileID: 5807742704814417808}
   - {fileID: 2907170902841377911}
-  - {fileID: 6940545407832082621}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &1439435933179755579
 CharacterController:
@@ -281,9 +280,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4198737199348790606}
-    - targetCorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6940545407832082621}
   m_SourcePrefab: {fileID: 100100000, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
 --- !u!4 &462847459933603740 stripped
 Transform:
@@ -317,19 +313,3 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6940545407832082621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 947882362609900838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd7e8633f8d49f0bf514ac204374bf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
-  animator: {fileID: 4198737199348790606}
-  ncc: {fileID: 0}
-  playerController: {fileID: 0}
-  animDampTime: 0.1
