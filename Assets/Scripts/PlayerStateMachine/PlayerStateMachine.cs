@@ -7,7 +7,7 @@ namespace PlayerStateMachine {
     // The PlayerStateMachine manages the different states of the player character, it is considered the context.
     public class PlayerStateMachine : NetworkBehaviour {
         public NetworkCharacterController characterController;
-        //Animator _animator;
+        Animator _animator;
         InputSystem_Actions _playerInput;
         
         // Camera reference for camera-relative movement
@@ -21,8 +21,10 @@ namespace PlayerStateMachine {
         bool _isSprintPressed;
         
         // animation hashes
-        int _isWalkingHash;
+        int _isRunningHash;
         int _isSprintingHash;
+        int _isGroundedHash;
+        int _isIdleHash;
         
         // constants
         [SerializeField]
@@ -49,10 +51,14 @@ namespace PlayerStateMachine {
         public Coroutine CurrentJumpResetRoutine { get; set; } = null;
         
         // Animation Hashes
+        public int IsGroundedHash { get { return _isGroundedHash; } }
         public int IsJumpingHash { get; private set; }
-        public int JumpCountHash { get { return _jumpCountHash; } }
-        public int IsWalkingHash { get { return _isWalkingHash; } }
+        
+        public int IsIdleHash { get { return _isIdleHash; } }
+        public int IsRunningHash { get { return _isRunningHash; } }
         public int IsSprintingHash { get { return _isSprintingHash; } }
+        // public int JumpCountHash { get { return _jumpCountHash; } }
+
 
         // Jump System
         public bool IsJumpPressed { get { return _isJumpPressed; } }
@@ -66,10 +72,12 @@ namespace PlayerStateMachine {
         public bool IsMovementPressed { get { return _isMovementPressed; } }
         public bool IsSprintPressed { get { return _isSprintPressed; } }
 
+        /*
         public float CurrentMovementY { 
             get { return _currentMovement.y; } 
             set { _currentMovement.y = value; } 
         }
+        */
 
         public float AppliedMovementX { 
             get { return _appliedMovement.x; } 
@@ -86,13 +94,20 @@ namespace PlayerStateMachine {
             set { _appliedMovement.z = value; } 
         }
 
+        // Animation helper methods
+        public void SetAnimationBool(int hash, bool value) {
+            if (_animator != null) {
+                _animator.SetBool(hash, value);
+            }
+        }
+
 
         // Awake is called earlier than Start in Unity's event life cycle
         void Awake() {
             // initially set reference variables
             _playerInput = new InputSystem_Actions();
             characterController = GetComponent<NetworkCharacterController>();
-            //_animator = GetComponent<Animator>();
+            _animator = GetComponentInChildren<Animator>();
             
             // Find camera binder for camera-relative movement
             _cameraBinder = GetComponent<ThirdPersonCameraBinder>();
@@ -106,8 +121,9 @@ namespace PlayerStateMachine {
             CurrentState.EnterState();
 
             // set the parameter hash references
-            _isWalkingHash = Animator.StringToHash("isWalking");
+            _isRunningHash = Animator.StringToHash("isRunning");
             _isSprintingHash = Animator.StringToHash("isSprinting");
+            _isIdleHash = Animator.StringToHash("isIdle");
             IsJumpingHash = Animator.StringToHash("isJumping");
             _jumpCountHash = Animator.StringToHash("jumpCount");
             

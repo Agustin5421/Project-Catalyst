@@ -12,7 +12,7 @@
         }
 
         public PlayerBaseState Walk() {
-            return new PlayerWalkState(_context, this);
+            return new PlayerRunState(_context, this);
         }
 
         public PlayerBaseState Sprint() {

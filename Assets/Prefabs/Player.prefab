@@ -83,7 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
-  m_Actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_Actions: {fileID: 0}
   m_NotificationBehavior: 0
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
@@ -287,7 +287,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4198737199348790606}
+      addedObject: {fileID: 3108922945128281519}
   m_SourcePrefab: {fileID: 100100000, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
 --- !u!4 &462847459933603740 stripped
 Transform:
@@ -299,7 +299,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5427129120885339462, guid: dcf2dd140097ea041ba8b70d12fa4df9, type: 3}
   m_PrefabInstance: {fileID: 5077391671423199328}
   m_PrefabAsset: {fileID: 0}
---- !u!95 &4198737199348790606
+--- !u!95 &3108922945128281519
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0

@@ -6,7 +6,9 @@ namespace PlayerStateMachine {
             : base(currentContext, playerStateFactory) { }
 
         public override void EnterState() {
-            //TODO: play sprint animation
+            _ctx.SetAnimationBool(_ctx.IsIdleHash, false);
+            _ctx.SetAnimationBool(_ctx.IsRunningHash, false);
+            _ctx.SetAnimationBool(_ctx.IsSprintingHash, true);
         }
 
         public override void UpdateState() {

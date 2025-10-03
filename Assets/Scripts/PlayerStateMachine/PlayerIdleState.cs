@@ -11,6 +11,10 @@ namespace PlayerStateMachine {
             _ctx.AppliedMovementX = 0;
             _ctx.AppliedMovementZ = 0;
             
+            _ctx.SetAnimationBool(_ctx.IsIdleHash, true);
+            _ctx.SetAnimationBool(_ctx.IsRunningHash, false);
+            _ctx.SetAnimationBool(_ctx.IsSprintingHash, false);
+            
             Debug.Log("Entering Idle State");
         }
 
