@@ -14,25 +14,21 @@ public class ThirdPersonCameraBinder : NetworkBehaviour {
     [SerializeField] Transform shoulderOffset; // Offset for shoulder positioning
     
     // Public property to access yaw pivot for camera-relative movement
-    public Transform YawPivot => yawPivot;
-    
-    // Public property to get camera's forward direction
+    public Transform YawPivot {
+        get { return yawPivot; }
+    }
+
+    // Camera's forward direction
     public Vector3 CameraForward {
         get {
-            if (_vcamInstance != null) {
-                return _vcamInstance.transform.forward;
-            }
-            return Vector3.forward; // Fallback
+            return _vcamInstance ? _vcamInstance.transform.forward : Vector3.forward; // Fallback
         }
     }
     
-    // Public property to get camera's right direction
+    // Public property to get the camera's right direction
     public Vector3 CameraRight {
         get {
-            if (_vcamInstance != null) {
-                return _vcamInstance.transform.right;
-            }
-            return Vector3.right; // Fallback
+            return _vcamInstance ? _vcamInstance.transform.right : Vector3.right; // Fallback
         }
     }
 
