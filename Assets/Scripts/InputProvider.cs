@@ -5,17 +5,17 @@ using Structs;
 using UnityEngine;
 
 /// <summary>
-/// Lee el Input local (nuevo Input System) y lo entrega al Runner (Fusion 2)
-/// Debe existir en la escena del CLIENTE. No depende del Player.
+/// Read local input (new Input System) and deliver it to the Runner (Fusion 2)
+/// Must exist in the CLIENT's scene. It does not depend on the Player.
 /// </summary>
 public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
     [SerializeField] NetworkRunner _runner; 
     
-    private InputSystem_Actions _actions;
+    InputSystem_Actions _actions;
 
-    private Vector2 _move;
-    private bool _jump;
-    private bool _sprint;
+    Vector2 _move;
+    bool _jump;
+    bool _sprint;
 
     void OnEnable() {
         _actions = new InputSystem_Actions();
@@ -28,12 +28,11 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
         _actions.Player.Sprint.performed+= _ => _sprint = true;
         _actions.Player.Sprint.canceled += _ => _sprint = false;
 
-        if (_runner == null) _runner = FindObjectOfType<NetworkRunner>();
-        if (_runner != null) _runner.AddCallbacks(this);
+        if (!_runner) _runner = FindFirstObjectByType<NetworkRunner>();
+        if (_runner) _runner.AddCallbacks(this);
     }
 
-    void OnDisable()
-    {
+    void OnDisable() {
         if (_runner != null) _runner.RemoveCallbacks(this);
         if (_actions != null) _actions.Disable();
     }

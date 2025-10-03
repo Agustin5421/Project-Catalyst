@@ -4,8 +4,10 @@ using UnityEngine;
 
 namespace PlayerStateMachine {
     public class PlayerJumpState : PlayerBaseState {
-        public PlayerJumpState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) 
-            : base(currentContext, playerStateFactory) { }
+        public PlayerJumpState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
+            : base(currentContext, playerStateFactory) {
+            InitializeSubState();
+        }
         
         IEnumerator IJumpResetRoutine() {
             yield return new WaitForSeconds(.5f);
@@ -18,6 +20,10 @@ namespace PlayerStateMachine {
         }
 
         public override void UpdateState() {
+            // Allow air control: apply horizontal movement from input while airborne
+            Vector3 cameraRelativeMovement = _ctx.GetCameraRelativeMovement(_ctx.CurrentMovementInput);
+            _ctx.AppliedMovementX = cameraRelativeMovement.x * _ctx.airControlMultiplier;
+            _ctx.AppliedMovementZ = cameraRelativeMovement.z * _ctx.airControlMultiplier;
             CheckSwitchStates();
         }
         
@@ -75,7 +81,7 @@ namespace PlayerStateMachine {
             _ctx.JumpCount += 1;
     
             var ncc = _ctx.GetComponent<NetworkCharacterController>();
-            if (ncc == null) return;
+            if (!ncc) return;
             Vector3 currentVelocity = ncc.Velocity;
         
             currentVelocity.y = ncc.jumpImpulse > 0 ? ncc.jumpImpulse : 8f;

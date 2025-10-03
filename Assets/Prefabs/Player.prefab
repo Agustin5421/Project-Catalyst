@@ -180,6 +180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine.PlayerStateMachine
   characterController: {fileID: 0}
   sprintMultiplier: 4
+  airControlMultiplier: 0.6
 --- !u!114 &2907170902841377911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,7 +196,14 @@ MonoBehaviour:
   cameraPrefab: {fileID: 1110891682306579864, guid: 343a42afc89d0d643a039b0172d24ee0, type: 3}
   yawPivot: {fileID: 9164693991642522734}
   pitchPivot: {fileID: 9164693991642522734}
-  headTarget: {fileID: 9164693991642522734}
+  shoulderOffset: {fileID: 0}
+  mouseSensitivity: 19.8
+  zoomSpeed: 2
+  minZoom: 1
+  maxZoom: 10
+  pitchMin: -30
+  pitchMax: 60
+  shoulderOffsetPosition: {x: 0.5, y: 1.5, z: 0}
 --- !u!114 &4912521206918695418
 MonoBehaviour:
   m_ObjectHideFlags: 0
