@@ -187,6 +187,10 @@ namespace PlayerStateMachine {
             
             // Calculate movement direction relative to camera
             Vector3 movementDirection = (cameraForward * inputVector.y) + (cameraRight * inputVector.x);
+
+            if (movementDirection.magnitude > 0.01f) {
+                movementDirection.Normalize();
+            }
             
             return movementDirection;
         }
