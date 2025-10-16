@@ -39,7 +39,7 @@ namespace PlayerStateMachine {
         }
 
         public override void InitializeSubState() {
-            throw new System.NotImplementedException();
+            Debug.Log("Not implemented yet: InitializeSubState in RunState");
         }
     }
 }

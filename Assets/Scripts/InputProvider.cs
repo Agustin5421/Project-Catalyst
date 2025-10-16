@@ -47,36 +47,37 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
     }
 
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {
-        throw new System.NotImplementedException();
+        Debug.Log("Not implemented yet: OnObjectExitAOI");
     }
 
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {
-        throw new System.NotImplementedException();
+        Debug.Log("Not implemented yet: OnObjectEnterAOI");
     }
 
     public void OnPlayerJoined(NetworkRunner r, PlayerRef p) { }
     public void OnPlayerLeft(NetworkRunner r, PlayerRef p) { }
     public void OnInputMissing(NetworkRunner r, PlayerRef p, NetworkInput i) { }
     public void OnShutdown(NetworkRunner r, ShutdownReason reason) { }
+    
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) {
-        throw new System.NotImplementedException();
+        Debug.Log("Not implemented yet: OnDisconnectedFromServer");
     }
 
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) {
-        throw new System.NotImplementedException();
+        Debug.Log("Not implemented yet: OnConnectRequest");
     }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {
-        throw new System.NotImplementedException();
+        Debug.Log("Not implemented yet: OnConnectFailed ");
     }
 
     public void OnConnectedToServer(NetworkRunner r) { }
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
-        throw new System.NotImplementedException();
+        Debug.Log("Not implemented yet: OnSessionListUpdated ");
     }
 
     public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) {
-        throw new System.NotImplementedException();
+        Debug.Log("Not implemented yet: OnCustomAuthenticationResponse ");
     }
 
     public void OnDisconnectedFromServer(NetworkRunner r) { }
