@@ -16,6 +16,9 @@ namespace PlayerStateMachine {
         
         public override void EnterState() {
             Debug.Log("Entering jump state");
+            // Explicitly set both animator parameters to ensure transition works
+            _ctx.SetAnimationBool(_ctx.IsGroundedHash, false);
+            _ctx.SetAnimationBool(_ctx.IsJumpingHash, true);
             HandleJump();
         }
 
@@ -30,6 +33,7 @@ namespace PlayerStateMachine {
         public override void ExitState() {
             //_ctx.Animator.SetBool(_ctx.IsJumpingHash, false);
             _ctx.IsJumpAnimating = false;
+            _ctx.SetAnimationBool(_ctx.IsJumpingHash, false);
             _ctx.CurrentJumpResetRoutine = _ctx.StartCoroutine(IJumpResetRoutine());
 
             if (_ctx.JumpCount == 3) {
@@ -78,6 +82,7 @@ namespace PlayerStateMachine {
             }
 
             _ctx.IsJumping = true;
+            _ctx.SetAnimationBool(_ctx.IsJumpingHash, true);
             _ctx.JumpCount += 1;
     
             var ncc = _ctx.GetComponent<NetworkCharacterController>();

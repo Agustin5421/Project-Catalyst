@@ -124,6 +124,7 @@ namespace PlayerStateMachine {
             _isRunningHash = Animator.StringToHash("isRunning");
             _isSprintingHash = Animator.StringToHash("isSprinting");
             _isIdleHash = Animator.StringToHash("isIdle");
+            _isGroundedHash = Animator.StringToHash("isGrounded");
             IsJumpingHash = Animator.StringToHash("isJumping");
             _jumpCountHash = Animator.StringToHash("jumpCount");
             

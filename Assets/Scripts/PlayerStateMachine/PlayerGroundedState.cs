@@ -9,6 +9,9 @@ namespace PlayerStateMachine {
         }
 
         public override void EnterState() {
+            // Explicitly set both animator parameters to ensure transition works
+            _ctx.SetAnimationBool(_ctx.IsGroundedHash, true);
+            _ctx.SetAnimationBool(_ctx.IsJumpingHash, false);
             Debug.Log("Entered GroundedState");
         }
 
@@ -18,6 +21,7 @@ namespace PlayerStateMachine {
         }
 
         public override void ExitState() {
+            _ctx.SetAnimationBool(_ctx.IsGroundedHash, false);
             Debug.Log("Exiting GroundedState");
         }
 
