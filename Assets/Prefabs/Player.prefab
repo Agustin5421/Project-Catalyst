@@ -40,6 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9164693991642522734}
+  - component: {fileID: -744604185430497977}
   - component: {fileID: 8662791331761705132}
   - component: {fileID: 1278068942430931336}
   - component: {fileID: 1439435933179755579}
@@ -71,6 +72,20 @@ Transform:
   - {fileID: 402620607197924075}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-744604185430497977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8485779231971945138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87ae41a1a9244b50a7b6271df20e116d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Spells.PlayerSpellManager
+  _EquippedSpellPrefabs:
+  - RawGuidValue: a1f253d50add84e3086dafad5f1a59d3
 --- !u!114 &8662791331761705132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,6 +133,7 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: -744604185430497977}
   - {fileID: -2619165432855632899}
   - {fileID: 5807742704814417808}
   - {fileID: 2907170902841377911}

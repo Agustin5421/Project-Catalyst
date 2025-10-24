@@ -16,6 +16,7 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
     Vector2 _move;
     bool _jump;
     bool _sprint;
+    bool _castSlot1;
 
     void OnEnable() {
         _actions = new InputSystem_Actions();
@@ -27,6 +28,8 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
         _actions.Player.Jump.canceled   += _ => _jump = false;
         _actions.Player.Sprint.performed+= _ => _sprint = true;
         _actions.Player.Sprint.canceled += _ => _sprint = false;
+        _actions.Player.CastSlot1.performed += _ => _castSlot1 = true;
+        _actions.Player.CastSlot1.canceled += _ => _castSlot1 = false;
 
         if (!_runner) _runner = FindFirstObjectByType<NetworkRunner>();
         if (_runner) _runner.AddCallbacks(this);
@@ -41,7 +44,9 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
         var data = new NetInputData {
             Move   = _move,
             Jump   = _jump,
-            Sprint = _sprint
+            Sprint = _sprint,
+            CastSlot1 = _castSlot1,
+            SpellIndex = 0 // Fireball is in slot 0
         };
         input.Set(data);
     }
