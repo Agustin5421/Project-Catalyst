@@ -5,7 +5,15 @@ namespace Spells {
     public class Fireball : ISpell {
         private float _lifeTime = 2f;
         private string _name = "Fireball";
-        private NetworkPrefabRef Prefab => SpellReferences.Instance.Fireball;        
+        private NetworkPrefabRef Prefab {
+            get {
+                if (SpellReferences.Instance == null) {
+                    Debug.LogError("SpellReferences.Instance is null! Make sure SpellReferences is in the scene.");
+                    return default;
+                }
+                return SpellReferences.Instance.Fireball;
+            }
+        }        
         
         public void CastSpell() {
             Debug.Log("Casting fireball spell!!");
@@ -31,18 +39,14 @@ namespace Spells {
                 Quaternion.LookRotation(forwardDirection),
                 caster.InputAuthority,
                 (r, obj) => {
-                    Fireball fireball = obj.GetComponent<Fireball>();
-                    if (fireball != null) {
-                        fireball.Init(forwardDirection);
+                    FireballProjectile fireballProjectile = obj.GetComponent<FireballProjectile>();
+                    if (fireballProjectile != null) {
+                        fireballProjectile.Init(forwardDirection);
                     }
                 }
             );
             
             Debug.Log($"{caster.InputAuthority} cast {_name}!");
-        }
-        
-        public void Init(Vector3 direction) {
-            Debug.Log($"Fireball initialized with direction: {direction}");
         }
     }
 }

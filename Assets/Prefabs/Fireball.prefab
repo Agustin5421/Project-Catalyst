@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6828163196015181094}
   - component: {fileID: 8421180099808511321}
   - component: {fileID: 4338500025027928100}
+  - component: {fileID: -6048728976415744112}
   - component: {fileID: -5705817177366043986}
   - component: {fileID: 3379923604344270817}
   m_Layer: 0
@@ -113,6 +114,20 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-6048728976415744112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5173988868594474926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9fa193b4619d95459ea12606bf0eabd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Spells.FireballProjectile
+  speed: 10
+  lifetime: 2
 --- !u!114 &-5705817177366043986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,6 +145,7 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: -6048728976415744112}
   - {fileID: 3379923604344270817}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &3379923604344270817
