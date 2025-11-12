@@ -20,6 +20,13 @@ namespace PlayerStateMachine {
         bool _isMovementPressed;
         bool _isSprintPressed;
         
+        // Networked animation states - these sync across all clients
+        [Networked] public bool IsIdle { get; set; }
+        [Networked] public bool IsRunning { get; set; }
+        [Networked] public bool IsSprinting { get; set; }
+        [Networked] public bool IsGrounded { get; set; }
+        [Networked] public bool IsJumpingNetworked { get; set; }
+        
         // animation hashes
         int _isRunningHash;
         int _isSprintingHash;
@@ -48,6 +55,7 @@ namespace PlayerStateMachine {
         
         // State Management
         public PlayerBaseState CurrentState { get; set; }
+        public PlayerBaseState CurrentSubState { get; set; } // Expose current substate for animation syncing
         public Coroutine CurrentJumpResetRoutine { get; set; } = null;
         
         // Animation Hashes
@@ -141,6 +149,70 @@ namespace PlayerStateMachine {
             //HandleRotation(); TODO: check later
             CurrentState.UpdateStates();
             characterController.Move(_appliedMovement * Time.deltaTime);
+            
+            // Update networked animation states on server/state authority
+            // This ensures all clients see the correct animations
+            if (Object.HasStateAuthority) {
+                UpdateNetworkedAnimationStates();
+            }
+        }
+        
+        /// <summary>
+        /// Updates networked animation state variables based on current player state.
+        /// This runs on the server and syncs to all clients.
+        /// </summary>
+        private void UpdateNetworkedAnimationStates() {
+            // Check if we're in a jump state (superstate)
+            bool isJumpState = CurrentState is PlayerJumpState;
+            bool isGroundedState = CurrentState is PlayerGroundedState;
+            
+            // If grounded, check the substate (Idle, Run, or Sprint)
+            // If jumping, we're in the air
+            IsGrounded = isGroundedState;
+            IsJumpingNetworked = isJumpState;
+            
+            if (isGroundedState) {
+                // Get the active substate from the grounded state
+                // We need to check what substate is active
+                // Since we can't directly access _currentSubState, we'll infer from movement state
+                // This is based on the same logic the state machine uses
+                if (!_isMovementPressed && !_isSprintPressed) {
+                    IsIdle = true;
+                    IsRunning = false;
+                    IsSprinting = false;
+                } else if (_isMovementPressed && !_isSprintPressed) {
+                    IsIdle = false;
+                    IsRunning = true;
+                    IsSprinting = false;
+                } else if (_isMovementPressed && _isSprintPressed) {
+                    IsIdle = false;
+                    IsRunning = false;
+                    IsSprinting = true;
+                } else {
+                    // Fallback
+                    IsIdle = true;
+                    IsRunning = false;
+                    IsSprinting = false;
+                }
+            } else if (isJumpState) {
+                // While jumping, maintain previous grounded animation state
+                // Don't change idle/running/sprinting during jump
+            }
+        }
+        
+        /// <summary>
+        /// Applies networked animation states to the local animator.
+        /// This runs on all clients (including proxies) to sync animations.
+        /// </summary>
+        public override void Render() {
+            // Apply networked animation states to animator on all clients
+            if (_animator != null) {
+                _animator.SetBool(_isIdleHash, IsIdle);
+                _animator.SetBool(_isRunningHash, IsRunning);
+                _animator.SetBool(_isSprintingHash, IsSprinting);
+                _animator.SetBool(_isGroundedHash, IsGrounded);
+                _animator.SetBool(IsJumpingHash, IsJumpingNetworked);
+            }
         }
         
         void SetupJumpVariables() {
