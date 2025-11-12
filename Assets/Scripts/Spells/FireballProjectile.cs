@@ -13,6 +13,7 @@ namespace Spells {
         [Networked] private Vector3 Direction { get; set; }
         [Networked] private float SpawnTime { get; set; }
         [Networked] private bool IsInitialized { get; set; }
+        private bool _hasHitSomething = false; // Prevent multiple hits
         
         public override void Spawned() {
             Debug.Log($"FireballProjectile.Spawned() called - HasStateAuthority: {Object.HasStateAuthority}, IsServer: {Runner.IsServer}, IsClient: {Runner.IsClient}");
@@ -64,7 +65,18 @@ namespace Spells {
             // NetworkTransform will sync the position to all clients
             float deltaTime = Runner.DeltaTime;
             Vector3 movement = Direction * speed * deltaTime;
+            Vector3 previousPosition = transform.position;
             transform.position += movement;
+            
+            // Manual collision check using Physics.OverlapSphere
+            // This is a fallback if OnTriggerEnter doesn't work
+            // If collision detected and object despawned, return early
+            if (CheckCollisions(previousPosition, transform.position)) {
+                return; // Object was despawned, exit early
+            }
+            
+            // Safety check again after collision check (in case object was despawned)
+            if (Runner == null || Object == null) return;
             
             if (Runner.Tick % 30 == 0) {
                 Debug.Log($"Fireball moving - Position: {transform.position}, Movement: {movement}, DeltaTime: {deltaTime}");
@@ -77,20 +89,178 @@ namespace Spells {
                 if (Runner != null && Object != null) {
                     Runner.Despawn(Object);
                 }
+                return; // Exit after despawning
             }
         }
         
+        /// <summary>
+        /// Manually checks for collisions using Physics.OverlapSphere.
+        /// This is a fallback method since OnTriggerEnter might not work reliably with NetworkBehaviour.
+        /// </summary>
+        /// <returns>True if a collision was detected and the object was despawned, false otherwise</returns>
+        private bool CheckCollisions(Vector3 from, Vector3 to) {
+            if (!Object.HasStateAuthority) return false;
+            if (_hasHitSomething) return false; // Already hit something, don't check again
+            
+            // Safety check
+            if (Runner == null || Object == null) return false;
+            
+            // Get the collider radius (assuming sphere collider)
+            Collider fireballCollider = GetComponent<Collider>();
+            float radius = 0.5f; // Default radius
+            
+            if (fireballCollider is SphereCollider sphereCollider) {
+                radius = sphereCollider.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z);
+            } else if (fireballCollider is CapsuleCollider capsuleCollider) {
+                radius = capsuleCollider.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.z);
+            } else if (fireballCollider is BoxCollider boxCollider) {
+                radius = Mathf.Max(boxCollider.size.x, boxCollider.size.y, boxCollider.size.z) * 0.5f * 
+                         Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z);
+            }
+            
+            // Use OverlapSphere to check for collisions at current position
+            Collider[] hits = Physics.OverlapSphere(transform.position, radius);
+            
+            foreach (Collider hit in hits) {
+                if (hit == null || hit.transform == null) continue;
+                
+                // Don't collide with self
+                if (hit.transform.root == transform.root) continue;
+                
+                Debug.Log($"Manual collision check detected: {hit.name}");
+                
+                // Check if we hit a boss
+                Boss boss = hit.GetComponent<Boss>();
+                if (boss == null) {
+                    boss = hit.GetComponentInParent<Boss>();
+                }
+                if (boss == null) {
+                    boss = hit.GetComponentInChildren<Boss>();
+                }
+                
+                if (boss != null) {
+                    Debug.Log($"Boss component found via manual check on {hit.name}! Dealing {damage} damage.");
+                    _hasHitSomething = true; // Mark as hit to prevent multiple hits
+                    boss.TakeDamage(damage);
+                    Debug.Log($"Fireball hit boss {hit.name} for {damage} damage!");
+                    
+                    // Despawn the fireball after hitting boss
+                    if (Runner != null && Object != null) {
+                        Runner.Despawn(Object);
+                    }
+                    return true; // Return true to indicate object was despawned
+                }
+            }
+            
+            return false; // No collision detected
+        }
+        
+        [SerializeField] private float damage = 10f; // Damage dealt by fireball
+        
         private void OnTriggerEnter(Collider other) {
+            Debug.Log($"OnTriggerEnter called! Collider: {other?.name}, HasStateAuthority: {Object?.HasStateAuthority}");
+            
             // Safety checks
-            if (Runner == null || Object == null) return;
-            if (!Object.HasStateAuthority) return;
+            if (Runner == null || Object == null) {
+                Debug.LogWarning("Fireball collision: Runner or Object is null");
+                return;
+            }
+            
+            if (!Object.HasStateAuthority) {
+                Debug.LogWarning($"Fireball collision: No state authority. HasStateAuthority: {Object.HasStateAuthority}");
+                return;
+            }
             
             // Don't collide with the caster
-            if (other == null || other.transform == null) return;
-            if (other.transform.root == transform.root) return;
+            if (other == null || other.transform == null) {
+                Debug.LogWarning("Fireball collision: other or transform is null");
+                return;
+            }
             
-            // Handle collision logic here
-            // For now, just despawn on any collision
+            if (other.transform.root == transform.root) {
+                Debug.Log($"Fireball collision: Ignoring collision with caster ({other.name})");
+                return;
+            }
+            
+            Debug.Log($"Fireball collision detected with: {other.name}");
+            
+            // Check if we hit a boss (check on the collider's GameObject and its parent)
+            Boss boss = other.GetComponent<Boss>();
+            if (boss == null) {
+                boss = other.GetComponentInParent<Boss>();
+            }
+            if (boss == null) {
+                boss = other.GetComponentInChildren<Boss>();
+            }
+            
+            if (boss != null) {
+                Debug.Log($"Boss component found on {other.name}! Dealing {damage} damage.");
+                // Deal damage to the boss
+                boss.TakeDamage(damage);
+                Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
+            } else {
+                Debug.Log($"No Boss component found on {other.name} or its parents/children");
+            }
+            
+            // Despawn the fireball after collision
+            Debug.Log($"Fireball collided with {other.name}, despawning");
+            if (Runner != null && Object != null) {
+                Runner.Despawn(Object);
+            }
+        }
+        
+        private void OnCollisionEnter(Collision collision) {
+            // Also handle regular collisions (non-trigger)
+            if (collision != null && collision.collider != null) {
+                Debug.Log($"OnCollisionEnter called! Collider: {collision.collider.name}");
+                HandleCollision(collision.collider);
+            }
+        }
+        
+        private void HandleCollision(Collider other) {
+            // Safety checks
+            if (Runner == null || Object == null) {
+                Debug.LogWarning("Fireball collision: Runner or Object is null");
+                return;
+            }
+            
+            if (!Object.HasStateAuthority) {
+                Debug.LogWarning($"Fireball collision: No state authority. HasStateAuthority: {Object.HasStateAuthority}");
+                return;
+            }
+            
+            // Don't collide with the caster
+            if (other == null || other.transform == null) {
+                Debug.LogWarning("Fireball collision: other or transform is null");
+                return;
+            }
+            
+            if (other.transform.root == transform.root) {
+                Debug.Log($"Fireball collision: Ignoring collision with caster ({other.name})");
+                return;
+            }
+            
+            Debug.Log($"Fireball collision detected with: {other.name}");
+            
+            // Check if we hit a boss (check on the collider's GameObject and its parent)
+            Boss boss = other.GetComponent<Boss>();
+            if (boss == null) {
+                boss = other.GetComponentInParent<Boss>();
+            }
+            if (boss == null) {
+                boss = other.GetComponentInChildren<Boss>();
+            }
+            
+            if (boss != null) {
+                Debug.Log($"Boss component found on {other.name}! Dealing {damage} damage.");
+                // Deal damage to the boss
+                boss.TakeDamage(damage);
+                Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
+            } else {
+                Debug.Log($"No Boss component found on {other.name} or its parents/children");
+            }
+            
+            // Despawn the fireball after collision
             Debug.Log($"Fireball collided with {other.name}, despawning");
             if (Runner != null && Object != null) {
                 Runner.Despawn(Object);
