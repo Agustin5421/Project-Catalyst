@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &18303026
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 18303027}
+  m_Layer: 0
+  m_Name: 'BossSpawnPoint '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &18303027
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18303026}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.93, y: 2.255, z: -3.36737}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -414,7 +445,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   playerPrefab:
     RawGuidValue: e56c10c98a1f346948b53dede3b1b6a7
+  bossPrefab:
+    RawGuidValue: 27f5749aa61247d42bc1c59615aa671d
   spawnPoint: {fileID: 1291558308}
+  bossSpawnPoint: {fileID: 18303027}
 --- !u!4 &417175577
 Transform:
   m_ObjectHideFlags: 0
@@ -677,4 +711,5 @@ SceneRoots:
   - {fileID: 685122803}
   - {fileID: 417175577}
   - {fileID: 1291558308}
+  - {fileID: 18303027}
   - {fileID: 503196765}
