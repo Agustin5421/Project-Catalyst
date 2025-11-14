@@ -173,7 +173,21 @@ namespace Spells {
                         }
                         
                         if (player != null) {
-                            Debug.Log($"Boss fireball hit player {hit.name}! Player damage not yet implemented.");
+                            // Get PlayerHealth component and deal damage
+                            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+                            if (playerHealth == null) {
+                                playerHealth = player.GetComponentInParent<PlayerHealth>();
+                            }
+                            if (playerHealth == null) {
+                                playerHealth = player.GetComponentInChildren<PlayerHealth>();
+                            }
+                            
+                            if (playerHealth != null) {
+                                playerHealth.TakeDamage(damage);
+                                Debug.Log($"Boss fireball hit player {hit.name} for {damage} damage!");
+                            } else {
+                                Debug.LogWarning($"Boss fireball hit player {hit.name} but no PlayerHealth component found!");
+                            }
                             _hasHitSomething = true;
                             
                             // Despawn the fireball after hitting player
@@ -265,7 +279,21 @@ namespace Spells {
                     }
                     
                     if (player != null) {
-                        Debug.Log($"Boss fireball hit player {other.name}! Player damage not yet implemented.");
+                        // Get PlayerHealth component and deal damage
+                        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+                        if (playerHealth == null) {
+                            playerHealth = player.GetComponentInParent<PlayerHealth>();
+                        }
+                        if (playerHealth == null) {
+                            playerHealth = player.GetComponentInChildren<PlayerHealth>();
+                        }
+                        
+                        if (playerHealth != null) {
+                            playerHealth.TakeDamage(damage);
+                            Debug.Log($"Boss fireball hit player {other.name} for {damage} damage!");
+                        } else {
+                            Debug.LogWarning($"Boss fireball hit player {other.name} but no PlayerHealth component found!");
+                        }
                         shouldDespawn = true;
                     }
                 }
@@ -355,7 +383,21 @@ namespace Spells {
                     }
                     
                     if (player != null) {
-                        Debug.Log($"Boss fireball hit player {other.name}! Player damage not yet implemented.");
+                        // Get PlayerHealth component and deal damage
+                        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+                        if (playerHealth == null) {
+                            playerHealth = player.GetComponentInParent<PlayerHealth>();
+                        }
+                        if (playerHealth == null) {
+                            playerHealth = player.GetComponentInChildren<PlayerHealth>();
+                        }
+                        
+                        if (playerHealth != null) {
+                            playerHealth.TakeDamage(damage);
+                            Debug.Log($"Boss fireball hit player {other.name} for {damage} damage!");
+                        } else {
+                            Debug.LogWarning($"Boss fireball hit player {other.name} but no PlayerHealth component found!");
+                        }
                         shouldDespawn = true;
                     }
                 }

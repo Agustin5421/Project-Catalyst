@@ -52,6 +52,14 @@ MonoBehaviour:
   fireballDamage: 10
   fireballCastInterval: 3
   scanRadius: 50
+  bossFireballSpeed: 20
+  bossFireballScale: 2
+  coneAngle: 45
+  fireballCount: 5
+  iceSpikePrefab:
+    RawGuidValue: df21fd025b9d1a04eab3f7bffa2031b0
+  iceSpikeCastInterval: 10
+  iceSpikeCount: 3
 --- !u!114 &7731496151193884957
 MonoBehaviour:
   m_ObjectHideFlags: 0

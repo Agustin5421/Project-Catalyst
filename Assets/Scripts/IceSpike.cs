@@ -118,9 +118,21 @@ public class IceSpike : NetworkBehaviour {
         }
         
         if (player != null) {
-            Debug.Log($"IceSpike hit player {other.name} for {damage} damage!");
-            // TODO: Implement player damage system
-            // For now, just log the hit
+            // Get PlayerHealth component and deal damage
+            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+            if (playerHealth == null) {
+                playerHealth = player.GetComponentInParent<PlayerHealth>();
+            }
+            if (playerHealth == null) {
+                playerHealth = player.GetComponentInChildren<PlayerHealth>();
+            }
+            
+            if (playerHealth != null) {
+                playerHealth.TakeDamage(damage);
+                Debug.Log($"IceSpike hit player {other.name} for {damage} damage!");
+            } else {
+                Debug.LogWarning($"IceSpike hit player {other.name} but no PlayerHealth component found!");
+            }
         }
     }
 }
