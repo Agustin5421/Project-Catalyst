@@ -13,6 +13,9 @@ namespace Spells {
         [Networked] private Vector3 Direction { get; set; }
         [Networked] private float SpawnTime { get; set; }
         [Networked] private bool IsInitialized { get; set; }
+        [Networked] private bool IsCasterBoss { get; set; } // True if the caster is a Boss, false if it's a Player
+        [Networked] private float CustomSpeed { get; set; } // Custom speed override (-1 means use default)
+        [Networked] private float CustomScale { get; set; } // Custom scale override (-1 means use default)
         private bool _hasHitSomething = false; // Prevent multiple hits
         
         public override void Spawned() {
@@ -30,12 +33,28 @@ namespace Spells {
             }
         }
         
-        public void Init(Vector3 direction) {
+        public void Init(Vector3 direction, bool isCasterBoss = false, float customSpeed = -1f, float customScale = -1f) {
             if (Object.HasStateAuthority) {
                 Direction = direction.normalized;
                 SpawnTime = Runner.SimulationTime;
+                IsCasterBoss = isCasterBoss;
+                CustomSpeed = customSpeed;
+                CustomScale = customScale;
                 IsInitialized = true;
-                Debug.Log($"FireballProjectile Init called with direction: {Direction}");
+                
+                // Apply scale immediately if specified
+                if (customScale > 0f) {
+                    transform.localScale = Vector3.one * customScale;
+                }
+                
+                Debug.Log($"FireballProjectile Init called with direction: {Direction}, IsCasterBoss: {IsCasterBoss}, Speed: {customSpeed}, Scale: {customScale}");
+            }
+        }
+        
+        public override void Render() {
+            // Apply scale on all clients (in case NetworkTransform doesn't sync it)
+            if (CustomScale > 0f && transform.localScale != Vector3.one * CustomScale) {
+                transform.localScale = Vector3.one * CustomScale;
             }
         }
         
@@ -64,7 +83,9 @@ namespace Spells {
             // Move the fireball forward
             // NetworkTransform will sync the position to all clients
             float deltaTime = Runner.DeltaTime;
-            Vector3 movement = Direction * speed * deltaTime;
+            // Use custom speed if specified, otherwise use default speed
+            float currentSpeed = CustomSpeed > 0f ? CustomSpeed : speed;
+            Vector3 movement = Direction * currentSpeed * deltaTime;
             Vector3 previousPosition = transform.position;
             transform.position += movement;
             
@@ -129,26 +150,61 @@ namespace Spells {
                 
                 Debug.Log($"Manual collision check detected: {hit.name}");
                 
-                // Check if we hit a boss
-                Boss boss = hit.GetComponent<Boss>();
-                if (boss == null) {
-                    boss = hit.GetComponentInParent<Boss>();
-                }
-                if (boss == null) {
-                    boss = hit.GetComponentInChildren<Boss>();
-                }
-                
-                if (boss != null) {
-                    Debug.Log($"Boss component found via manual check on {hit.name}! Dealing {damage} damage.");
-                    _hasHitSomething = true; // Mark as hit to prevent multiple hits
-                    boss.TakeDamage(damage);
-                    Debug.Log($"Fireball hit boss {hit.name} for {damage} damage!");
-                    
-                    // Despawn the fireball after hitting boss
-                    if (Runner != null && Object != null) {
-                        Runner.Despawn(Object);
+                // Check what we hit based on who cast the fireball
+                if (IsCasterBoss) {
+                    // Boss cast this fireball - damage players (anything that's NOT a boss)
+                    Boss boss = hit.GetComponent<Boss>();
+                    if (boss == null) {
+                        boss = hit.GetComponentInParent<Boss>();
                     }
-                    return true; // Return true to indicate object was despawned
+                    if (boss == null) {
+                        boss = hit.GetComponentInChildren<Boss>();
+                    }
+                    
+                    // If it's NOT a boss, it's a player - damage them
+                    if (boss == null) {
+                        // Check if it's a player (has PlayerStateMachine or is a player NetworkObject)
+                        PlayerStateMachine.PlayerStateMachine player = hit.GetComponent<PlayerStateMachine.PlayerStateMachine>();
+                        if (player == null) {
+                            player = hit.GetComponentInParent<PlayerStateMachine.PlayerStateMachine>();
+                        }
+                        if (player == null) {
+                            player = hit.GetComponentInChildren<PlayerStateMachine.PlayerStateMachine>();
+                        }
+                        
+                        if (player != null) {
+                            Debug.Log($"Boss fireball hit player {hit.name}! Player damage not yet implemented.");
+                            _hasHitSomething = true;
+                            
+                            // Despawn the fireball after hitting player
+                            if (Runner != null && Object != null) {
+                                Runner.Despawn(Object);
+                            }
+                            return true;
+                        }
+                    }
+                } else {
+                    // Player cast this fireball - damage bosses
+                    Boss boss = hit.GetComponent<Boss>();
+                    if (boss == null) {
+                        boss = hit.GetComponentInParent<Boss>();
+                    }
+                    if (boss == null) {
+                        boss = hit.GetComponentInChildren<Boss>();
+                    }
+                    
+                    if (boss != null) {
+                        Debug.Log($"Player fireball hit boss {hit.name}! Dealing {damage} damage.");
+                        _hasHitSomething = true; // Mark as hit to prevent multiple hits
+                        boss.TakeDamage(damage);
+                        Debug.Log($"Fireball hit boss {hit.name} for {damage} damage!");
+                        
+                        // Despawn the fireball after hitting boss
+                        if (Runner != null && Object != null) {
+                            Runner.Despawn(Object);
+                        }
+                        return true; // Return true to indicate object was despawned
+                    }
                 }
             }
             
@@ -184,28 +240,60 @@ namespace Spells {
             
             Debug.Log($"Fireball collision detected with: {other.name}");
             
-            // Check if we hit a boss (check on the collider's GameObject and its parent)
-            Boss boss = other.GetComponent<Boss>();
-            if (boss == null) {
-                boss = other.GetComponentInParent<Boss>();
-            }
-            if (boss == null) {
-                boss = other.GetComponentInChildren<Boss>();
-            }
+            // Check what we hit based on who cast the fireball
+            bool shouldDespawn = false;
             
-            if (boss != null) {
-                Debug.Log($"Boss component found on {other.name}! Dealing {damage} damage.");
-                // Deal damage to the boss
-                boss.TakeDamage(damage);
-                Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
+            if (IsCasterBoss) {
+                // Boss cast this fireball - damage players (anything that's NOT a boss)
+                Boss boss = other.GetComponent<Boss>();
+                if (boss == null) {
+                    boss = other.GetComponentInParent<Boss>();
+                }
+                if (boss == null) {
+                    boss = other.GetComponentInChildren<Boss>();
+                }
+                
+                // If it's NOT a boss, it's a player - damage them
+                if (boss == null) {
+                    // Check if it's a player (has PlayerStateMachine or is a player NetworkObject)
+                    PlayerStateMachine.PlayerStateMachine player = other.GetComponent<PlayerStateMachine.PlayerStateMachine>();
+                    if (player == null) {
+                        player = other.GetComponentInParent<PlayerStateMachine.PlayerStateMachine>();
+                    }
+                    if (player == null) {
+                        player = other.GetComponentInChildren<PlayerStateMachine.PlayerStateMachine>();
+                    }
+                    
+                    if (player != null) {
+                        Debug.Log($"Boss fireball hit player {other.name}! Player damage not yet implemented.");
+                        shouldDespawn = true;
+                    }
+                }
             } else {
-                Debug.Log($"No Boss component found on {other.name} or its parents/children");
+                // Player cast this fireball - damage bosses
+                Boss boss = other.GetComponent<Boss>();
+                if (boss == null) {
+                    boss = other.GetComponentInParent<Boss>();
+                }
+                if (boss == null) {
+                    boss = other.GetComponentInChildren<Boss>();
+                }
+                
+                if (boss != null) {
+                    Debug.Log($"Player fireball hit boss {other.name}! Dealing {damage} damage.");
+                    // Deal damage to the boss
+                    boss.TakeDamage(damage);
+                    Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
+                    shouldDespawn = true;
+                }
             }
             
             // Despawn the fireball after collision
-            Debug.Log($"Fireball collided with {other.name}, despawning");
-            if (Runner != null && Object != null) {
-                Runner.Despawn(Object);
+            if (shouldDespawn) {
+                Debug.Log($"Fireball collided with {other.name}, despawning");
+                if (Runner != null && Object != null) {
+                    Runner.Despawn(Object);
+                }
             }
         }
         
@@ -242,28 +330,60 @@ namespace Spells {
             
             Debug.Log($"Fireball collision detected with: {other.name}");
             
-            // Check if we hit a boss (check on the collider's GameObject and its parent)
-            Boss boss = other.GetComponent<Boss>();
-            if (boss == null) {
-                boss = other.GetComponentInParent<Boss>();
-            }
-            if (boss == null) {
-                boss = other.GetComponentInChildren<Boss>();
-            }
+            // Check what we hit based on who cast the fireball
+            bool shouldDespawn = false;
             
-            if (boss != null) {
-                Debug.Log($"Boss component found on {other.name}! Dealing {damage} damage.");
-                // Deal damage to the boss
-                boss.TakeDamage(damage);
-                Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
+            if (IsCasterBoss) {
+                // Boss cast this fireball - damage players (anything that's NOT a boss)
+                Boss boss = other.GetComponent<Boss>();
+                if (boss == null) {
+                    boss = other.GetComponentInParent<Boss>();
+                }
+                if (boss == null) {
+                    boss = other.GetComponentInChildren<Boss>();
+                }
+                
+                // If it's NOT a boss, it's a player - damage them
+                if (boss == null) {
+                    // Check if it's a player (has PlayerStateMachine or is a player NetworkObject)
+                    PlayerStateMachine.PlayerStateMachine player = other.GetComponent<PlayerStateMachine.PlayerStateMachine>();
+                    if (player == null) {
+                        player = other.GetComponentInParent<PlayerStateMachine.PlayerStateMachine>();
+                    }
+                    if (player == null) {
+                        player = other.GetComponentInChildren<PlayerStateMachine.PlayerStateMachine>();
+                    }
+                    
+                    if (player != null) {
+                        Debug.Log($"Boss fireball hit player {other.name}! Player damage not yet implemented.");
+                        shouldDespawn = true;
+                    }
+                }
             } else {
-                Debug.Log($"No Boss component found on {other.name} or its parents/children");
+                // Player cast this fireball - damage bosses
+                Boss boss = other.GetComponent<Boss>();
+                if (boss == null) {
+                    boss = other.GetComponentInParent<Boss>();
+                }
+                if (boss == null) {
+                    boss = other.GetComponentInChildren<Boss>();
+                }
+                
+                if (boss != null) {
+                    Debug.Log($"Player fireball hit boss {other.name}! Dealing {damage} damage.");
+                    // Deal damage to the boss
+                    boss.TakeDamage(damage);
+                    Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
+                    shouldDespawn = true;
+                }
             }
             
             // Despawn the fireball after collision
-            Debug.Log($"Fireball collided with {other.name}, despawning");
-            if (Runner != null && Object != null) {
-                Runner.Despawn(Object);
+            if (shouldDespawn) {
+                Debug.Log($"Fireball collided with {other.name}, despawning");
+                if (Runner != null && Object != null) {
+                    Runner.Despawn(Object);
+                }
             }
         }
     }

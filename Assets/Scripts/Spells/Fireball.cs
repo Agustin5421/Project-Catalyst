@@ -27,7 +27,14 @@ namespace Spells {
             return Prefab;
         }
         
+        // Interface implementation - must match exactly
         public void Cast(NetworkRunner runner, NetworkObject caster, Vector3 spawnPosition, Vector3 forwardDirection) {
+            // Call the overloaded version with default values
+            Cast(runner, caster, spawnPosition, forwardDirection, -1f, -1f);
+        }
+        
+        // Overloaded method with speed and scale parameters
+        public void Cast(NetworkRunner runner, NetworkObject caster, Vector3 spawnPosition, Vector3 forwardDirection, float speed, float scale) {
             if (!Prefab.IsValid) {
                 Debug.LogError($"Fireball spell '{_name}' has no prefab assigned!");
                 return;
@@ -41,7 +48,10 @@ namespace Spells {
                 (r, obj) => {
                     FireballProjectile fireballProjectile = obj.GetComponent<FireballProjectile>();
                     if (fireballProjectile != null) {
-                        fireballProjectile.Init(forwardDirection);
+                        // Check if caster is a Boss
+                        bool isCasterBoss = caster.GetComponent<Boss>() != null;
+                        // Use provided speed/scale if specified, otherwise use defaults
+                        fireballProjectile.Init(forwardDirection, isCasterBoss, speed, scale);
                     }
                 }
             );

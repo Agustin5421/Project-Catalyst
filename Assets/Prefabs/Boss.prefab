@@ -9,12 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4189765938380278455}
-  - component: {fileID: 7086552398859557933}
   - component: {fileID: 4778131939563113186}
   - component: {fileID: 5948340111022249880}
   - component: {fileID: 29984806020956528}
   - component: {fileID: 1786971852618994040}
   - component: {fileID: 3653021856124685208}
+  - component: {fileID: -1286519262792896045}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -37,14 +37,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &7086552398859557933
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 624718351659901130}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &4778131939563113186
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -107,6 +99,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Boss
   maxHealth: 100
   fireballDamage: 100
+  fireballCastInterval: 3
+  scanRadius: 50
+  bossFireballSpeed: 20
+  bossFireballScale: 2
+  coneAngle: 45
+  fireballCount: 5
+  iceSpikePrefab:
+    RawGuidValue: df21fd025b9d1a04eab3f7bffa2031b0
+  iceSpikeCastInterval: 10
+  iceSpikeCount: 3
 --- !u!114 &29984806020956528
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,3 +167,15 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
+--- !u!114 &-1286519262792896045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624718351659901130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bffac4a54cfa49b4b6df26963600646f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutoColliders
