@@ -11,9 +11,12 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
     private NetworkRunner _runner;
     
     [SerializeField] private NetworkPrefabRef playerPrefab; // player prefab to spawn
+    [SerializeField] private NetworkPrefabRef bossPrefab; // boss prefab to spawn
     private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
+    private NetworkObject _spawnedBoss; // Track the spawned boss
     
-    [SerializeField] private Transform spawnPoint; 
+    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private Transform bossSpawnPoint; // Boss spawn position (if null, will use Vector3.zero) 
 
     // Creates and starts a new Fusion session (Host or Client).
     async void StartGame(GameMode mode) {
@@ -146,7 +149,16 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
 
-    public void OnSceneLoadDone(NetworkRunner runner) { }
+    public void OnSceneLoadDone(NetworkRunner runner) {
+        // Spawn the boss when the scene is loaded (only on server)
+        if (runner.IsServer && bossPrefab.IsValid) {
+            Vector3 bossPosition = bossSpawnPoint != null ? bossSpawnPoint.position : Vector3.zero;
+            Quaternion bossRotation = bossSpawnPoint != null ? bossSpawnPoint.rotation : Quaternion.identity;
+            
+            _spawnedBoss = runner.Spawn(bossPrefab, bossPosition, bossRotation, null);
+            Debug.Log($"[Spawner] Boss spawned at position: {bossPosition}");
+        }
+    }
 
     public void OnSceneLoadStart(NetworkRunner runner) { }
 }
