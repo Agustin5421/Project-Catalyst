@@ -553,7 +553,7 @@ MonoBehaviour:
   playerPrefab:
     RawGuidValue: e56c10c98a1f346948b53dede3b1b6a7
   bossPrefab:
-    RawGuidValue: 630b9071cbf84834cbcdf020787d5c78
+    RawGuidValue: 00000000000000000000000000000000
   spawnPoint: {fileID: 1291558308}
   bossSpawnPoint: {fileID: 18303027}
 --- !u!4 &417175577

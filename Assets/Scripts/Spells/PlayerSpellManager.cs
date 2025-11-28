@@ -10,6 +10,7 @@ namespace Spells {
         [Networked, Capacity(5)] // Example: player can have 5 spells equipped
         public NetworkArray<NetworkPrefabRef> EquippedSpellPrefabs => default; // Store references to spell prefabs
 
+        [SerializeField] private NetworkPrefabRef fireballPrefab; // Fireball prefab for skin customization
         [SerializeField] private float fireballCooldown = 5f; // Cooldown in seconds
         [Networked] private float LastFireballCastTime { get; set; }
         private bool _hasLoggedCooldownReady = false;
@@ -22,7 +23,12 @@ namespace Spells {
             // Initialize spells for all instances (both client and server need access)
             // This ensures the server can spawn spells when clients request them via RPC
             if (_availableSpells.Count == 0) {
-                ISpell fireballSpell = new Fireball(); 
+                // Create fireball spell with the specified prefab for skin customization
+                NetworkPrefabRef prefabToUse = fireballPrefab.IsValid 
+                    ? fireballPrefab 
+                    : (SpellReferences.Instance != null ? SpellReferences.Instance.Fireball : default);
+                
+                ISpell fireballSpell = new Fireball(prefabToUse); 
                 _availableSpells.Add(fireballSpell);
             }
             

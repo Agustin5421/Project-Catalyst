@@ -15,13 +15,23 @@ public class Boss : NetworkBehaviour {
     [SerializeField] private float bossFireballScale = 2f; // Boss fireball size multiplier (bigger than player)
     [SerializeField] private float coneAngle = 45f; // Angle of the fireball cone in degrees
     [SerializeField] private int fireballCount = 5; // Number of fireballs to cast in the cone
+    [SerializeField] private NetworkPrefabRef bossFireballPrefab; // Boss fireball prefab for skin customization
     [SerializeField] private NetworkPrefabRef iceSpikePrefab; // Prefab reference for ice spike
     [SerializeField] private float iceSpikeCastInterval = 10f; // Cast ice spikes every 10 seconds
     [SerializeField] private int iceSpikeCount = 3; // Number of ice spikes to spawn per cast
     
+    // Cone Ice Spike Ability (AoE in front of boss)
+    [SerializeField] private NetworkPrefabRef smallIceSpikePrefab; // Prefab reference for small ice spike (cone ability)
+    [SerializeField] private float coneIceSpikeCastInterval = 20f; // Cast cone ice spikes every 20 seconds
+    [SerializeField] private float coneIceSpikeAngle = 60f; // Total angle of the cone in degrees
+    [SerializeField] private float coneIceSpikeMaxDistance = 15f; // Maximum distance for the cone
+    [SerializeField] private float coneRowSpacing = 3.5f; // Distance between rows
+    [SerializeField] private int[] coneRowSpikeCounts = new int[] { 3, 5, 7, 10 }; // Number of spikes per row
+    
     [Networked] private float CurrentHealth { get; set; }
     [Networked] private float LastFireballCastTime { get; set; }
     [Networked] private float LastIceSpikeCastTime { get; set; }
+    [Networked] private float LastConeIceSpikeCastTime { get; set; }
     
     private Fireball _fireballSpell;
     
@@ -32,8 +42,12 @@ public class Boss : NetworkBehaviour {
             Debug.Log($"Boss spawned with {CurrentHealth} HP");
         }
         
-        // Initialize fireball spell
-        _fireballSpell = new Fireball();
+        // Initialize fireball spell with boss-specific prefab for skin customization
+        NetworkPrefabRef prefabToUse = bossFireballPrefab.IsValid 
+            ? bossFireballPrefab 
+            : (SpellReferences.Instance != null ? SpellReferences.Instance.Fireball : default);
+        
+        _fireballSpell = new Fireball(prefabToUse);
     }
     
     /// <summary>
@@ -87,6 +101,12 @@ public class Boss : NetworkBehaviour {
         float timeSinceLastIceSpike = Runner.SimulationTime - LastIceSpikeCastTime;
         if (timeSinceLastIceSpike >= iceSpikeCastInterval) {
             CastIceSpikes();
+        }
+        
+        // Check if enough time has passed since last cone ice spike cast
+        float timeSinceLastConeIceSpike = Runner.SimulationTime - LastConeIceSpikeCastTime;
+        if (timeSinceLastConeIceSpike >= coneIceSpikeCastInterval) {
+            CastConeIceSpikes();
         }
     }
     
@@ -266,6 +286,126 @@ public class Boss : NetworkBehaviour {
         }
         
         Debug.Log($"Boss cast {spikesToSpawn} ice spikes at {Runner.SimulationTime}");
+    }
+    
+    /// <summary>
+    /// Casts ice spikes in a cone pattern in front of the boss.
+    /// Creates 4 rows with different amounts of spikes (3, 5, 7, 10).
+    /// </summary>
+    private void CastConeIceSpikes() {
+        if (!smallIceSpikePrefab.IsValid) {
+            Debug.LogWarning("Boss: Small ice spike prefab is not assigned for cone ability!");
+            return;
+        }
+        
+        // Update cast time
+        LastConeIceSpikeCastTime = Runner.SimulationTime;
+        
+        // Find the closest player to target
+        Transform targetPlayer = FindClosestPlayer();
+        
+        Vector3 baseDirection;
+        
+        if (targetPlayer != null) {
+            // Calculate direction towards the player
+            Vector3 directionToPlayer = (targetPlayer.position - transform.position).normalized;
+            baseDirection = directionToPlayer;
+            Debug.Log($"Boss casting cone ice spikes towards player at distance: {Vector3.Distance(transform.position, targetPlayer.position):F2}");
+        } else {
+            // No player found, cast forward as fallback
+            baseDirection = transform.forward;
+            Debug.Log("Boss: No players found in scan radius, casting cone ice spikes forward");
+        }
+        
+        // Boss position
+        Vector3 bossPosition = transform.position;
+        
+        // Calculate right vector perpendicular to base direction for cone spreading
+        Vector3 upVector = Vector3.up;
+        if (Mathf.Abs(Vector3.Dot(baseDirection, upVector)) > 0.9f) {
+            upVector = Vector3.right;
+        }
+        Vector3 coneRight = Vector3.Cross(upVector, baseDirection).normalized;
+        if (coneRight.magnitude < 0.1f) {
+            coneRight = Vector3.Cross(Vector3.forward, baseDirection).normalized;
+        }
+        
+        // Ensure we have 4 rows
+        int rowCount = Mathf.Min(coneRowSpikeCounts.Length, 4);
+        
+        // Spawn spikes for each row
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            int spikesInRow = coneRowSpikeCounts[rowIndex];
+            
+            // Calculate distance for this row (rows get further from boss)
+            float rowDistance = coneRowSpacing * (rowIndex + 1);
+            
+            // Calculate the width of this row based on distance and cone angle
+            float rowWidth = 2f * rowDistance * Mathf.Tan(coneIceSpikeAngle * 0.5f * Mathf.Deg2Rad);
+            
+            // Calculate spacing between spikes in this row
+            float spikeSpacing = spikesInRow > 1 ? rowWidth / (spikesInRow - 1) : 0f;
+            float startOffset = -rowWidth * 0.5f;
+            
+            // Spawn each spike in the row
+            for (int spikeIndex = 0; spikeIndex < spikesInRow; spikeIndex++) {
+                // Calculate position offset from center
+                float offsetX = startOffset + (spikeIndex * spikeSpacing);
+                
+                // Calculate world position for this spike
+                // Move forward in base direction, then offset perpendicular
+                Vector3 spikePosition = bossPosition 
+                    + baseDirection * rowDistance 
+                    + coneRight * offsetX;
+                
+                // Find ground position for the spike
+                Vector3 groundPosition = FindGroundPositionForSpike(spikePosition);
+                
+                // Spawn the small ice spike
+                Runner.Spawn(
+                    smallIceSpikePrefab,
+                    groundPosition,
+                    Quaternion.identity,
+                    null, // No input authority needed for environmental effects
+                    (r, obj) => {
+                        SmallIceSpike smallIceSpike = obj.GetComponent<SmallIceSpike>();
+                        if (smallIceSpike != null) {
+                            smallIceSpike.Init(groundPosition);
+                        } else {
+                            Debug.LogWarning("SmallIceSpike component not found on spawned prefab!");
+                        }
+                    }
+                );
+            }
+        }
+        
+        int totalSpikes = 0;
+        for (int i = 0; i < rowCount; i++) {
+            totalSpikes += coneRowSpikeCounts[i];
+        }
+        
+        Debug.Log($"Boss cast cone ice spikes: {rowCount} rows, {totalSpikes} total spikes at {Runner.SimulationTime}");
+    }
+    
+    /// <summary>
+    /// Finds the ground position for an ice spike using raycast.
+    /// </summary>
+    /// <param name="position">The approximate position to check</param>
+    /// <returns>Ground position where the spike should spawn</returns>
+    private Vector3 FindGroundPositionForSpike(Vector3 position) {
+        // Raycast downward to find ground
+        RaycastHit hit;
+        float raycastDistance = 20f; // Maximum distance to check for ground
+        
+        // Start raycast slightly above the position
+        Vector3 raycastStart = position + Vector3.up * 2f;
+        
+        if (Physics.Raycast(raycastStart, Vector3.down, out hit, raycastDistance)) {
+            return hit.point;
+        }
+        
+        // If no ground found, use the Y position minus a small offset
+        return new Vector3(position.x, position.y - 1f, position.z);
     }
 }
 

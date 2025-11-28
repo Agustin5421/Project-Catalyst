@@ -105,10 +105,19 @@ MonoBehaviour:
   bossFireballScale: 2
   coneAngle: 45
   fireballCount: 5
+  bossFireballPrefab:
+    RawGuidValue: a1f253d50add84e3086dafad5f1a59d3
   iceSpikePrefab:
     RawGuidValue: df21fd025b9d1a04eab3f7bffa2031b0
   iceSpikeCastInterval: 10
   iceSpikeCount: 3
+  smallIceSpikePrefab:
+    RawGuidValue: 210bdf3faa66c4744b347dc865f80fdc
+  coneIceSpikeCastInterval: 20
+  coneIceSpikeAngle: 60
+  coneIceSpikeMaxDistance: 15
+  coneRowSpacing: 3.5
+  coneRowSpikeCounts: 0300000005000000070000000a000000
 --- !u!114 &29984806020956528
 MonoBehaviour:
   m_ObjectHideFlags: 0

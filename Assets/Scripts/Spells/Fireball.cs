@@ -5,15 +5,27 @@ namespace Spells {
     public class Fireball : ISpell {
         private float _lifeTime = 2f;
         private string _name = "Fireball";
-        private NetworkPrefabRef Prefab {
-            get {
-                if (SpellReferences.Instance == null) {
-                    Debug.LogError("SpellReferences.Instance is null! Make sure SpellReferences is in the scene.");
-                    return default;
-                }
-                return SpellReferences.Instance.Fireball;
+        private NetworkPrefabRef _prefab;
+        
+        /// <summary>
+        /// Constructor that accepts a prefab for skin customization
+        /// </summary>
+        /// <param name="prefab">The NetworkPrefabRef of the fireball prefab to use</param>
+        public Fireball(NetworkPrefabRef prefab) {
+            _prefab = prefab;
+        }
+        
+        /// <summary>
+        /// Default constructor that falls back to SpellReferences if available
+        /// </summary>
+        public Fireball() {
+            // Fallback to SpellReferences for backward compatibility
+            if (SpellReferences.Instance != null) {
+                _prefab = SpellReferences.Instance.Fireball;
+            } else {
+                Debug.LogWarning("Fireball created without prefab and SpellReferences.Instance is null. Prefab must be set manually.");
             }
-        }        
+        }
         
         public void CastSpell() {
             Debug.Log("Casting fireball spell!!");
@@ -24,7 +36,15 @@ namespace Spells {
         }
 
         public NetworkPrefabRef GetPrefab() {
-            return Prefab;
+            return _prefab;
+        }
+        
+        /// <summary>
+        /// Sets the prefab for this fireball instance (allows runtime skin changes)
+        /// </summary>
+        /// <param name="prefab">The NetworkPrefabRef of the fireball prefab to use</param>
+        public void SetPrefab(NetworkPrefabRef prefab) {
+            _prefab = prefab;
         }
         
         // Interface implementation - must match exactly
@@ -35,13 +55,13 @@ namespace Spells {
         
         // Overloaded method with speed and scale parameters
         public void Cast(NetworkRunner runner, NetworkObject caster, Vector3 spawnPosition, Vector3 forwardDirection, float speed, float scale) {
-            if (!Prefab.IsValid) {
+            if (!_prefab.IsValid) {
                 Debug.LogError($"Fireball spell '{_name}' has no prefab assigned!");
                 return;
             }
 
             runner.Spawn(
-                Prefab,
+                _prefab,
                 spawnPosition,
                 Quaternion.LookRotation(forwardDirection),
                 caster.InputAuthority,
