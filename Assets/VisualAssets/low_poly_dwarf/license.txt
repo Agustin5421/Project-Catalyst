@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly Dwarf
+* source:	https://sketchfab.com/3d-models/low-poly-dwarf-e9513458f7ae4f9f95a99cd1034b644f
+* author:	Marek Piechota (https://sketchfab.com/M.Piechota)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly Dwarf" (https://sketchfab.com/3d-models/low-poly-dwarf-e9513458f7ae4f9f95a99cd1034b644f) by Marek Piechota (https://sketchfab.com/M.Piechota) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

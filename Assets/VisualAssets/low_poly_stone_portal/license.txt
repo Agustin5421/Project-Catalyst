@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly Stone Portal
+* source:	https://sketchfab.com/3d-models/low-poly-stone-portal-62a7c61caba8462782b5ed6cf9cf56cd
+* author:	AnnikaVeksø (https://sketchfab.com/que_3d)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly Stone Portal" (https://sketchfab.com/3d-models/low-poly-stone-portal-62a7c61caba8462782b5ed6cf9cf56cd) by AnnikaVeksø (https://sketchfab.com/que_3d) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

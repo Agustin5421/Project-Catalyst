@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly Winter Village
+* source:	https://sketchfab.com/3d-models/low-poly-winter-village-5abe872cf7e34afb8d1c2b47cc7b4fe6
+* author:	I'm blendin' it (https://sketchfab.com/im_blendin_it)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly Winter Village" (https://sketchfab.com/3d-models/low-poly-winter-village-5abe872cf7e34afb8d1c2b47cc7b4fe6) by I'm blendin' it (https://sketchfab.com/im_blendin_it) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
