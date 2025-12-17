@@ -10,6 +10,9 @@ public class Teleporter : NetworkBehaviour {
     [Tooltip("Time in seconds players must stand in the teleporter before activation.")]
     [SerializeField] private float teleportTime = 5f;
 
+    [Tooltip("Sound to play when players are teleported.")]
+    [SerializeField] private AudioClip teleportSound;
+
     // Track players currently in the trigger zone
     private HashSet<NetworkObject> _playersInZone = new HashSet<NetworkObject>();
     
@@ -100,6 +103,18 @@ public class Teleporter : NetworkBehaviour {
                 // Fallback: directly set position (might not work well with client prediction without NCC)
                 playerNetObj.transform.position = dungeonSpawnPoint.position;
             }
+        }
+        
+        // Play teleport sound on all clients
+        if (teleportSound != null) {
+            Rpc_PlayTeleportSound(dungeonSpawnPoint.position);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void Rpc_PlayTeleportSound(Vector3 position) {
+        if (teleportSound != null) {
+            AudioSource.PlayClipAtPoint(teleportSound, position);
         }
     }
 }

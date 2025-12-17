@@ -42,12 +42,17 @@ namespace Spells {
                 CustomScale = customScale;
                 IsInitialized = true;
                 
+                // Force player fireballs to do 100 damage for testing (overriding Inspector value)
+                if (!IsCasterBoss) {
+                    damage = 100f;
+                }
+                
                 // Apply scale immediately if specified
                 if (customScale > 0f) {
                     transform.localScale = Vector3.one * customScale;
                 }
                 
-                Debug.Log($"FireballProjectile Init called with direction: {Direction}, IsCasterBoss: {IsCasterBoss}, Speed: {customSpeed}, Scale: {customScale}");
+                Debug.Log($"FireballProjectile Init called with direction: {Direction}, IsCasterBoss: {IsCasterBoss}, Speed: {customSpeed}, Scale: {customScale}, Damage: {damage}");
             }
         }
         
@@ -225,7 +230,7 @@ namespace Spells {
             return false; // No collision detected
         }
         
-        [SerializeField] private float damage = 10f; // Damage dealt by fireball
+        [SerializeField] private float damage = 100f; // Damage dealt by fireball
         
         private void OnTriggerEnter(Collider other) {
             Debug.Log($"OnTriggerEnter called! Collider: {other?.name}, HasStateAuthority: {Object?.HasStateAuthority}");

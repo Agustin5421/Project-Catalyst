@@ -6,6 +6,9 @@ namespace Spells {
         [SerializeField] private NetworkPrefabRef fireballPrefab;
 
         public NetworkPrefabRef Fireball => fireballPrefab;
+        
+        [SerializeField] private AudioClip fireballCastSound;
+        public AudioClip FireballCastSound => fireballCastSound;
 
         public static SpellReferences Instance { get; private set; }
 

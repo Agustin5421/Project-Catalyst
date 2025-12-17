@@ -587,6 +587,7 @@ MonoBehaviour:
     RawGuidValue: 630b9071cbf84834cbcdf020787d5c78
   spawnPoint: {fileID: 1291558308}
   bossSpawnPoint: {fileID: 18303027}
+  bossRespawnTime: 10
 --- !u!4 &417175577
 Transform:
   m_ObjectHideFlags: 0
@@ -712,6 +713,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Spells.SpellReferences
   fireballPrefab:
     RawGuidValue: a1f253d50add84e3086dafad5f1a59d3
+  fireballCastSound: {fileID: 8300000, guid: a096ae2940fbe0440b7d0a1a2877a695, type: 3}
 --- !u!4 &503196765
 Transform:
   m_ObjectHideFlags: 0

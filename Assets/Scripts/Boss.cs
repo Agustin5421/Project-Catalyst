@@ -8,7 +8,7 @@ using Spells;
 /// </summary>
 public class Boss : NetworkBehaviour {
     [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private float fireballDamage = 10f;
+    // fireballDamage removed as damage is determined by the projectile
     [SerializeField] private float fireballCastInterval = 3f; // Cast fireball every 3 seconds
     [SerializeField] private float scanRadius = 50f; // Maximum distance to scan for players
     [SerializeField] private float bossFireballSpeed = 20f; // Boss fireball speed (faster than player)
@@ -31,7 +31,10 @@ public class Boss : NetworkBehaviour {
     [Networked] private float CurrentHealth { get; set; }
     [Networked] private float LastFireballCastTime { get; set; }
     [Networked] private float LastIceSpikeCastTime { get; set; }
+
     [Networked] private float LastConeIceSpikeCastTime { get; set; }
+    [Networked] private NetworkBool IsAggroed { get; set; }
+    [Networked] private float FirstSightedTime { get; set; }
     
     private Fireball _fireballSpell;
     
@@ -39,6 +42,7 @@ public class Boss : NetworkBehaviour {
         // Initialize health on server
         if (Object.HasStateAuthority) {
             CurrentHealth = maxHealth;
+            IsAggroed = false;
             Debug.Log($"Boss spawned with {CurrentHealth} HP");
         }
         
@@ -80,16 +84,29 @@ public class Boss : NetworkBehaviour {
         }
     }
     
-    /// <summary>
-    /// Gets the fireball damage value.
-    /// </summary>
-    public float GetFireballDamage() {
-        return fireballDamage;
-    }
+
     
     public override void FixedUpdateNetwork() {
         // Only cast on server (state authority)
         if (!Object.HasStateAuthority) return;
+
+        // Check if any player is in range
+        if (FindClosestPlayer() == null) {
+            IsAggroed = false;
+            return;
+        }
+
+        // Initialize aggro if this is the first frame seeing a player
+        if (!IsAggroed) {
+            IsAggroed = true;
+            FirstSightedTime = Runner.SimulationTime;
+            Debug.Log($"Boss aggroed! Waiting 5s before attacking...");
+        }
+
+        // Wait for 5 seconds before starting to cast
+        if (Runner.SimulationTime - FirstSightedTime < 5f) {
+            return;
+        }
         
         // Check if enough time has passed since last fireball cast
         float timeSinceLastFireball = Runner.SimulationTime - LastFireballCastTime;

@@ -10,6 +10,7 @@ public class SmallIceSpike : NetworkBehaviour {
     [SerializeField] private float maxHeight = 2.5f; // Maximum height of the spike (smaller than regular)
     [SerializeField] private float lifetime = 3f; // How long the spike stays before despawning
     [SerializeField] private float damage = 10f; // Damage dealt when player touches the spike (less than regular)
+    [SerializeField] private AudioClip spawnSound;
     
     [Networked] private float SpawnTime { get; set; }
     [Networked] private Vector3 TargetPosition { get; set; } // Position where spike should reach
@@ -22,6 +23,10 @@ public class SmallIceSpike : NetworkBehaviour {
             SpawnTime = Runner.SimulationTime;
             IsInitialized = true;
             Debug.Log($"SmallIceSpike spawned at {transform.position}");
+        }
+        
+        if (spawnSound != null) {
+            AudioSource.PlayClipAtPoint(spawnSound, transform.position);
         }
     }
     

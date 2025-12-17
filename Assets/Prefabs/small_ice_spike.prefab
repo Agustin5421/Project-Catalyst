@@ -123,6 +123,7 @@ MonoBehaviour:
   maxHeight: 2.5
   lifetime: 3
   damage: 10
+  spawnSound: {fileID: 8300000, guid: 673b77edfe1e3b74a8441bdbd041d123, type: 3}
 --- !u!114 &4073915914387165770
 MonoBehaviour:
   m_ObjectHideFlags: 0

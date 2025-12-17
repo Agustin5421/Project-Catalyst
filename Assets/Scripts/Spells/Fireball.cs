@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Spells {
     public class Fireball : ISpell {
         private float _lifeTime = 2f;
+        private AudioClip _castSound;
         private string _name = "Fireball";
         private NetworkPrefabRef _prefab;
         
@@ -13,6 +14,9 @@ namespace Spells {
         /// <param name="prefab">The NetworkPrefabRef of the fireball prefab to use</param>
         public Fireball(NetworkPrefabRef prefab) {
             _prefab = prefab;
+            if (SpellReferences.Instance != null) {
+                _castSound = SpellReferences.Instance.FireballCastSound;
+            }
         }
         
         /// <summary>
@@ -22,6 +26,7 @@ namespace Spells {
             // Fallback to SpellReferences for backward compatibility
             if (SpellReferences.Instance != null) {
                 _prefab = SpellReferences.Instance.Fireball;
+                _castSound = SpellReferences.Instance.FireballCastSound;
             } else {
                 Debug.LogWarning("Fireball created without prefab and SpellReferences.Instance is null. Prefab must be set manually.");
             }
@@ -76,6 +81,10 @@ namespace Spells {
                 }
             );
             
+            if (_castSound != null) {
+                AudioSource.PlayClipAtPoint(_castSound, spawnPosition);
+            }
+
             Debug.Log($"{caster.InputAuthority} cast {_name}!");
         }
     }

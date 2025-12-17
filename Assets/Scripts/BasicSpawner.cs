@@ -17,6 +17,10 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
     
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private Transform bossSpawnPoint; // Boss spawn position (if null, will use Vector3.zero) 
+    
+    [SerializeField] private float bossRespawnTime = 10f; // Time to respawn the boss after death
+    private bool _bossRespawning;
+    private bool _sceneLoaded; 
 
     // Creates and starts a new Fusion session (Host or Client).
     async void StartGame(GameMode mode) {
@@ -149,6 +153,34 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
 
+    private void Update() {
+        if (!_sceneLoaded || _runner == null || !_runner.IsServer || !bossPrefab.IsValid) return;
+        
+        // Check if boss is dead (null) and not respawning
+        // Note: When NetworkObject is despawned, the C# wrapper becomes null (Unity object lifecycle)
+        if (_spawnedBoss == null && !_bossRespawning) {
+            StartCoroutine(RespawnBoss());
+        }
+    }
+
+    private System.Collections.IEnumerator RespawnBoss() {
+        _bossRespawning = true;
+        Debug.Log($"[Spawner] Boss died. Respawning in {bossRespawnTime} seconds...");
+        
+        yield return new WaitForSeconds(bossRespawnTime);
+        
+        // One final check to make sure game is still running
+        if (_runner != null && _runner.IsRunning) {
+            Vector3 bossPosition = bossSpawnPoint != null ? bossSpawnPoint.position : Vector3.zero;
+            Quaternion bossRotation = bossSpawnPoint != null ? bossSpawnPoint.rotation : Quaternion.identity;
+                
+            _spawnedBoss = _runner.Spawn(bossPrefab, bossPosition, bossRotation, null);
+            Debug.Log($"[Spawner] Boss respawned at position: {bossPosition}");
+        }
+        
+        _bossRespawning = false;
+    }
+    
     public void OnSceneLoadDone(NetworkRunner runner) {
         // Spawn the boss when the scene is loaded (only on server)
         if (runner.IsServer && bossPrefab.IsValid) {
@@ -158,6 +190,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks {
             _spawnedBoss = runner.Spawn(bossPrefab, bossPosition, bossRotation, null);
             Debug.Log($"[Spawner] Boss spawned at position: {bossPosition}");
         }
+        
+        _sceneLoaded = true;
     }
 
     public void OnSceneLoadStart(NetworkRunner runner) { }
