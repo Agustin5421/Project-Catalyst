@@ -13,74 +13,57 @@ public class Teleporter : NetworkBehaviour {
     [Tooltip("Sound to play when players are teleported.")]
     [SerializeField] private AudioClip teleportSound;
 
+    [Tooltip("Radius of the teleport zone")]
+    [SerializeField] private float zoneRadius = 3f;
+
     // Track players currently in the trigger zone
     private HashSet<NetworkObject> _playersInZone = new HashSet<NetworkObject>();
     
     // Timer for the teleportation logic
     [Networked] private TickTimer _teleportTimer { get; set; }
-    private bool _isTimerRunning = false;
-
-    private void OnTriggerEnter(Collider other) {
-        // Only the server manages the teleport logic
-        if (!Runner.IsServer) return;
-
-        Debug.Log($"[Teleporter] OnTriggerEnter with: {other.gameObject.name}");
-
-        // Find the NetworkObject associated with the collider
-        var networkObject = other.GetComponentInParent<NetworkObject>();
-        if (networkObject != null) {
-             // Check if the object is a player (has PlayerStateMachine)
-             if (networkObject.GetComponent<PlayerStateMachine.PlayerStateMachine>() != null) {
-                 if (_playersInZone.Add(networkObject)) {
-                     Debug.Log($"[Teleporter] Player {networkObject.name} entered. Count: {_playersInZone.Count}");
-                     
-                     // If this is the first player, start the timer
-                     if (_playersInZone.Count == 1) {
-                         _teleportTimer = TickTimer.CreateFromSeconds(Runner, teleportTime);
-                         _isTimerRunning = true;
-                         Debug.Log($"[Teleporter] Timer started for {teleportTime} seconds.");
-                     }
-                 } else {
-                     Debug.Log($"[Teleporter] Player {networkObject.name} is already in the zone.");
-                 }
-             } else {
-                 Debug.LogWarning($"[Teleporter] Object {networkObject.name} has NetworkObject but NO PlayerStateMachine.");
-             }
-        } else {
-            Debug.LogWarning($"[Teleporter] Object {other.gameObject.name} has NO NetworkObject in parent.");
-        }
-    }
-
-    private void OnTriggerExit(Collider other) {
-        if (!Runner.IsServer) return;
-
-        var networkObject = other.GetComponentInParent<NetworkObject>();
-        if (networkObject != null) {
-            if (_playersInZone.Remove(networkObject)) {
-                Debug.Log($"[Teleporter] Player {networkObject.name} exited. Count: {_playersInZone.Count}");
-                
-                // If no players are left, reset the timer
-                if (_playersInZone.Count == 0) {
-                    _teleportTimer = TickTimer.None;
-                    _isTimerRunning = false;
-                    Debug.Log("[Teleporter] Zone empty. Timer reset.");
-                }
-            }
-        }
-    }
+    [Networked] private NetworkBool _isTimerRunning { get; set; }
 
     public override void FixedUpdateNetwork() {
-        // Only server executes this
-        if (!Runner.IsServer) return;
+        // Only server executes logic
+        if (!Object.HasStateAuthority) return;
 
-        // Check if timer is running and has expired
-        if (_isTimerRunning && _teleportTimer.Expired(Runner)) {
-            TeleportAll();
-            
-            // Reset timer and clear list (since they are moved)
-            _teleportTimer = TickTimer.None;
-            _isTimerRunning = false;
-            _playersInZone.Clear();
+        // 1. Detect Players in Radius
+        _playersInZone.Clear();
+        // Use OverlapSphere to find players reliably regardless of movement physics
+        Collider[] hits = Physics.OverlapSphere(transform.position, zoneRadius);
+        foreach (var hit in hits) {
+            var netObj = hit.GetComponentInParent<NetworkObject>();
+            // Verify it is a valid player
+            if (netObj != null && netObj.GetComponent<PlayerStateMachine.PlayerStateMachine>() != null) {
+                _playersInZone.Add(netObj);
+            }
+        }
+
+        // 2. Timer Logic
+        if (_playersInZone.Count > 0) {
+            // If timer NOT running, start it
+            if (!_isTimerRunning) {
+                _teleportTimer = TickTimer.CreateFromSeconds(Runner, teleportTime);
+                _isTimerRunning = true;
+                Debug.Log($"[Teleporter] Player detected. Timer started for {teleportTime}s. Players: {_playersInZone.Count}");
+            } 
+            else {
+                // Timer IS running, check expiration
+                if (_teleportTimer.Expired(Runner)) {
+                    Debug.Log("[Teleporter] Timer expired. Teleporting...");
+                    TeleportAll();
+                    // Reset after teleport
+                    _isTimerRunning = false;
+                    _teleportTimer = TickTimer.None; 
+                }
+            }
+        } else {
+            // No players present, reset timer if it was running
+            if (_isTimerRunning) {
+                Debug.Log("[Teleporter] Zone empty. Timer cancelled.");
+                _isTimerRunning = false;
+                _teleportTimer = TickTimer.None;
+            }
         }
     }
 
@@ -100,7 +83,7 @@ public class Teleporter : NetworkBehaviour {
             if (ncc != null) {
                 ncc.Teleport(dungeonSpawnPoint.position);
             } else {
-                // Fallback: directly set position (might not work well with client prediction without NCC)
+                // Fallback: directly set position
                 playerNetObj.transform.position = dungeonSpawnPoint.position;
             }
         }
@@ -116,5 +99,12 @@ public class Teleporter : NetworkBehaviour {
         if (teleportSound != null) {
             AudioSource.PlayClipAtPoint(teleportSound, position);
         }
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.color = new Color(0, 1, 0, 0.3f);
+        Gizmos.DrawSphere(transform.position, zoneRadius);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, zoneRadius);
     }
 }

@@ -92,6 +92,7 @@ MonoBehaviour:
   _EquippedSpellPrefabs:
   - RawGuidValue: a1f253d50add84e3086dafad5f1a59d3
   golemCooldown: 0
+  golemManaCost: 50
   golemSpawnHeightOffset: 2
 --- !u!114 &8662791331761705132
 MonoBehaviour:
@@ -274,8 +275,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf675d02ed881924ea92525162e1b976, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMana
-  maxMana: 250
-  regenRate: 2
+  maxMana: 1000
+  regenRate: 1000
 --- !u!1001 &5077391671423199328
 PrefabInstance:
   m_ObjectHideFlags: 0

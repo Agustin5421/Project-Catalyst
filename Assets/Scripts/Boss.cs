@@ -38,12 +38,47 @@ public class Boss : NetworkBehaviour {
     
     private Fireball _fireballSpell;
     
+    [SerializeField] private AudioClip fightMusic; // Music to play during the fight
+    [SerializeField] private float musicRange = 100f; // Distance where music is audible
+    [SerializeField] private float musicVolume = 1.0f; // Volume of the music
+
+    private AudioSource _audioSource;
+    
+    private void Awake() {
+        Debug.Log("[Boss] Awake called.");
+    }
+
+    private void Start() {
+        Debug.Log("[Boss] Start called.");
+    }
+
     public override void Spawned() {
+        Debug.Log("[Boss] Spawned called. HasStateAuthority: " + Object.HasStateAuthority);
+
         // Initialize health on server
         if (Object.HasStateAuthority) {
             CurrentHealth = maxHealth;
             IsAggroed = false;
             Debug.Log($"Boss spawned with {CurrentHealth} HP");
+        }
+        
+        // Setup AudioSource for fight music
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null) _audioSource = gameObject.AddComponent<AudioSource>();
+        
+        if (fightMusic != null) {
+            _audioSource.clip = fightMusic;
+            _audioSource.loop = true;
+            _audioSource.spatialBlend = 1.0f; // Fully 3D
+            _audioSource.minDistance = 10f; // Full volume up to 10 meters
+            _audioSource.maxDistance = musicRange; // Cannot affect listeners beyond this range
+            _audioSource.rolloffMode = AudioRolloffMode.Linear; // Linear fade out to silence at max distance
+            _audioSource.volume = musicVolume;
+            _audioSource.playOnAwake = true;
+            _audioSource.Play();
+            Debug.Log($"[Boss] Fight music started: {fightMusic.name}. Range: {musicRange}, Vol: {musicVolume}");
+        } else {
+             Debug.LogWarning("[Boss] No fight music clip assigned in Inspector!");
         }
         
         // Initialize fireball spell with boss-specific prefab for skin customization
@@ -53,6 +88,8 @@ public class Boss : NetworkBehaviour {
         
         _fireballSpell = new Fireball(prefabToUse);
     }
+
+
     
     /// <summary>
     /// Called when the boss takes damage.
@@ -76,11 +113,99 @@ public class Boss : NetworkBehaviour {
     /// <summary>
     /// Called when the boss's health reaches 0.
     /// </summary>
+    [Header("Death Sequence")]
+    [Tooltip("Coordinates to teleport players to after boss death.")]
+    [SerializeField] private Vector3 teleportTargetCoordinates;
+    [SerializeField] private float teleportAfterDeathRadius = 100f;
+    [SerializeField] private float deathSequenceDuration = 10f;
+
+    private bool _isDead = false;
+
+    /// <summary>
+    /// Called when the boss's health reaches 0.
+    /// </summary>
     private void OnDeath() {
-        Debug.Log("Boss has been defeated! HP reached 0. Despawning...");
+        if (_isDead) return;
+        _isDead = true;
+
+        Debug.Log("Boss has been defeated! Starting death sequence...");
         
+        // Notify clients to fade music and show death effects
+        Rpc_OnDeath();
+
+        // Start the server-side sequence
+        if (Object.HasStateAuthority) {
+            StartCoroutine(DeathSequenceCoroutine());
+        }
+    }
+
+    private System.Collections.IEnumerator DeathSequenceCoroutine() {
+        // Capture position before moving/hiding
+        Vector3 deathPosition = transform.position;
+        
+        // Move boss away immediately to hide it while keeping the object active
+        // This effectively "removes" it from the players' view and interaction
+        transform.position += Vector3.down * 500f;
+
+        // Wait for the delay
+        yield return new WaitForSeconds(deathSequenceDuration);
+
+        // Teleport players to the coordinates
+        Vector3 targetPos = teleportTargetCoordinates;
+        Debug.Log($"[Boss] Teleporting players to {targetPos}");
+
+        foreach (PlayerRef playerRef in Runner.ActivePlayers) {
+            if (Runner.TryGetPlayerObject(playerRef, out NetworkObject playerObj)) {
+                // Check distance using the original death position
+                if (Vector3.Distance(deathPosition, playerObj.transform.position) <= teleportAfterDeathRadius) {
+                    // Teleport
+                    var ncc = playerObj.GetComponent<NetworkCharacterController>();
+                    if (ncc != null) {
+                        ncc.Teleport(targetPos);
+                    } else {
+                        playerObj.transform.position = targetPos;
+                    }
+                }
+            }
+        }
+
+        // Finally despawn
         if (Runner != null && Object != null) {
             Runner.Despawn(Object);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void Rpc_OnDeath() {
+        // Detach music to a temporary object so it doesn't move with the boss
+        if (_audioSource != null && _audioSource.isPlaying) {
+             GameObject audioHolder = new GameObject("BossDeathMusic");
+             audioHolder.transform.position = transform.position; // Play at death location
+             
+             AudioSource newSource = audioHolder.AddComponent<AudioSource>();
+             newSource.clip = _audioSource.clip;
+             newSource.volume = _audioSource.volume;
+             newSource.spatialBlend = _audioSource.spatialBlend;
+             newSource.minDistance = _audioSource.minDistance;
+             newSource.maxDistance = _audioSource.maxDistance;
+             newSource.rolloffMode = _audioSource.rolloffMode;
+             newSource.time = _audioSource.time;
+             newSource.Play();
+             
+             // Stop original
+             _audioSource.Stop();
+             
+             // Use AudioFader to handle fade out and destruction
+             AudioFader fader = audioHolder.AddComponent<AudioFader>();
+             fader.StartFade(5f);
+        }
+        
+        // Disable visuals/collision local as a backup to the teleport
+        Collider c = GetComponent<Collider>();
+        if (c) c.enabled = false;
+        
+        foreach(var r in GetComponentsInChildren<Renderer>()) {
+            r.enabled = false;
         }
     }
     

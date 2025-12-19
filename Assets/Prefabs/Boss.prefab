@@ -98,7 +98,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Boss
   maxHealth: 100
-  fireballDamage: 100
   fireballCastInterval: 3
   scanRadius: 50
   bossFireballSpeed: 20
@@ -118,6 +117,9 @@ MonoBehaviour:
   coneIceSpikeMaxDistance: 15
   coneRowSpacing: 3.5
   coneRowSpikeCounts: 0300000005000000070000000a000000
+  fightMusic: {fileID: 8300000, guid: e18fccfbe383c1f4d9ebfbf04b7039e3, type: 3}
+  musicRange: 100
+  musicVolume: 20
 --- !u!114 &29984806020956528
 MonoBehaviour:
   m_ObjectHideFlags: 0

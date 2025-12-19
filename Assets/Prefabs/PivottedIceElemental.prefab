@@ -48,8 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2abb45643556e7f4bad6a425cc765a1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Boss
-  maxHealth: 100
-  fireballDamage: 10
+  maxHealth: 400
   fireballCastInterval: 3
   scanRadius: 50
   bossFireballSpeed: 20
@@ -69,6 +68,12 @@ MonoBehaviour:
   coneIceSpikeMaxDistance: 15
   coneRowSpacing: 3.5
   coneRowSpikeCounts: 0300000005000000070000000a000000
+  fightMusic: {fileID: 8300000, guid: e18fccfbe383c1f4d9ebfbf04b7039e3, type: 3}
+  musicRange: 100
+  musicVolume: 1
+  teleportTargetCoordinates: {x: 5.05, y: 1.682, z: 163.2}
+  teleportAfterDeathRadius: 100
+  deathSequenceDuration: 10
 --- !u!114 &7731496151193884957
 MonoBehaviour:
   m_ObjectHideFlags: 0

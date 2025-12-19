@@ -2,7 +2,7 @@ using Fusion;
 using UnityEngine;
 
 public class PlayerMana : NetworkBehaviour {
-    [SerializeField] private float maxMana = 250f;
+    [SerializeField] private float maxMana = 500f;
     [SerializeField] private float regenRate = 2f; // Mana per second
 
     [Networked] private float CurrentMana { get; set; }

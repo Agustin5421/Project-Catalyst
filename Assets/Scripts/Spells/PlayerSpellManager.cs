@@ -16,6 +16,7 @@ namespace Spells {
         
         [Header("Golem Ability")]
         [SerializeField] private float golemCooldown = 0f;
+        [SerializeField] private float golemManaCost = 50f;
         [SerializeField] private float golemSpawnHeightOffset = 2f;
         [Networked] private float LastGolemCastTime { get; set; }
         private List<NetworkObject> _activeGolems = new List<NetworkObject>();
@@ -210,7 +211,7 @@ namespace Spells {
             }
             
             // Check Mana (Client Prediction)
-            if (_playerMana != null && !_playerMana.TryConsumeMana(100f)) {
+            if (_playerMana != null && !_playerMana.TryConsumeMana(golemManaCost)) {
                  Debug.Log("Not enough mana for Golems!");
                  return;
             }
@@ -230,7 +231,7 @@ namespace Spells {
              }
              
              // Check Mana (Server Authority)
-             if (_playerMana != null && !_playerMana.TryConsumeMana(100f)) {
+             if (_playerMana != null && !_playerMana.TryConsumeMana(golemManaCost)) {
                   Debug.Log("Server: Not enough mana for Golems!");
                   return;
              }
