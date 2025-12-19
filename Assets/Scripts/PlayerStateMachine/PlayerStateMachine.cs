@@ -15,6 +15,7 @@ namespace PlayerStateMachine {
         
         // input values
         Vector2 _currentMovementInput;
+        float _currentCameraYaw; // Camera rotation from input
         Vector3 _currentMovement;
         Vector3 _appliedMovement;
         bool _isMovementPressed;
@@ -142,6 +143,7 @@ namespace PlayerStateMachine {
         public override void FixedUpdateNetwork() { 
             if (GetInput(out NetInputData data)) {
                 _currentMovementInput = data.Move;
+                _currentCameraYaw     = data.CameraYaw;
                 _isJumpPressed        = data.Jump;
                 _isSprintPressed      = data.Sprint;
                 _isMovementPressed    = _currentMovementInput != Vector2.zero;
@@ -241,24 +243,14 @@ namespace PlayerStateMachine {
         /// <param name="inputVector">Raw input vector (WASD input)</param>
         /// <returns>Camera-relative movement vector</returns>
         public Vector3 GetCameraRelativeMovement(Vector2 inputVector) {
-            if (_cameraBinder == null) {
-                // Fallback to world-space movement if no camera is found
-                return new Vector3(inputVector.x, 0, inputVector.y);
-            }
+            // Use the camera yaw from the input to calculate direction
+            // This ensures correct movement direction on the server for all clients
+            Quaternion cameraRotation = Quaternion.Euler(0, _currentCameraYaw, 0);
             
-            // Get camera's forward and right vectors directly from the virtual camera
-            Vector3 cameraForward = _cameraBinder.CameraForward;
-            Vector3 cameraRight = _cameraBinder.CameraRight;
+            Vector3 cameraForward = cameraRotation * Vector3.forward;
+            Vector3 cameraRight = cameraRotation * Vector3.right;
             
-            // Remove Y component to keep movement on the ground plane
-            cameraForward.y = 0;
-            cameraRight.y = 0;
-            
-            // Normalize to ensure consistent movement speed
-            cameraForward.Normalize();
-            cameraRight.Normalize();
-            
-            // Calculate movement direction relative to camera
+            // Calculate movement direction relative to camera orientation
             Vector3 movementDirection = (cameraForward * inputVector.y) + (cameraRight * inputVector.x);
 
             if (movementDirection.magnitude > 0.01f) {

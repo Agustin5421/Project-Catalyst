@@ -15,16 +15,13 @@ namespace PlayerStateMachine {
             _ctx.SetAnimationBool(_ctx.IsRunningHash, false);
             _ctx.SetAnimationBool(_ctx.IsSprintingHash, false);
             
-            Debug.Log("Entering Idle State");
         }
 
         public override void UpdateState() {
-            Debug.Log("Updating Idle State");
             CheckSwitchStates();
         }
 
         public override void ExitState() {
-            Debug.Log("Exiting Idle State");
         }
 
         public override void CheckSwitchStates() {

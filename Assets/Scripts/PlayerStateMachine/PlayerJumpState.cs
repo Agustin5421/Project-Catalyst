@@ -15,7 +15,6 @@ namespace PlayerStateMachine {
         }
         
         public override void EnterState() {
-            Debug.Log("Entering jump state");
             // Explicitly set both animator parameters to ensure transition works
             _ctx.SetAnimationBool(_ctx.IsGroundedHash, false);
             _ctx.SetAnimationBool(_ctx.IsJumpingHash, true);
@@ -41,7 +40,6 @@ namespace PlayerStateMachine {
                 //_ctx.Animator.SetInteger(_ctx.JumpCountHash, _ctx.JumpCount);
             }
             
-            Debug.Log("Exiting jump state");
         }
 
 
@@ -92,8 +90,6 @@ namespace PlayerStateMachine {
             currentVelocity.y = ncc.jumpImpulse > 0 ? ncc.jumpImpulse : 8f;
         
             ncc.Velocity = currentVelocity;
-        
-            Debug.Log($"Applied Jump with velocity: {currentVelocity.y}");
         }
 
     }

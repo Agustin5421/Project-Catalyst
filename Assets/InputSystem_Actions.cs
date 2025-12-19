@@ -114,7 +114,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""Attack"",
                     ""type"": ""Button"",
                     ""id"": ""6c2ab1b8-8984-453a-af3d-a3c78ae1679a"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -141,7 +141,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""f1ba0d36-48eb-4cd5-b651-1c94a6531f70"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -150,7 +150,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""Previous"",
                     ""type"": ""Button"",
                     ""id"": ""2776c80d-3c14-4091-8c56-d04ced07a2b0"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -186,6 +186,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""CastSlot1"",
                     ""type"": ""Button"",
                     ""id"": ""cf5f8fd0-453d-4d56-98ff-a0bf296f4c97"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CastSlot2"",
+                    ""type"": ""Button"",
+                    ""id"": ""ed556205-48ec-44e1-acac-ecdfa7f9a1cb"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -608,6 +617,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""CastSlot1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""29f8eefd-4e4a-4df4-a8c8-3b0c090c3cff"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CastSlot2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1206,6 +1226,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_Scroll = m_Player.FindAction("Scroll", throwIfNotFound: true);
         m_Player_CastSlot1 = m_Player.FindAction("CastSlot1", throwIfNotFound: true);
+        m_Player_CastSlot2 = m_Player.FindAction("CastSlot2", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1310,6 +1331,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_Scroll;
     private readonly InputAction m_Player_CastSlot1;
+    private readonly InputAction m_Player_CastSlot2;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1365,6 +1387,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/CastSlot1".
         /// </summary>
         public InputAction @CastSlot1 => m_Wrapper.m_Player_CastSlot1;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CastSlot2".
+        /// </summary>
+        public InputAction @CastSlot2 => m_Wrapper.m_Player_CastSlot2;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1424,6 +1450,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CastSlot1.started += instance.OnCastSlot1;
             @CastSlot1.performed += instance.OnCastSlot1;
             @CastSlot1.canceled += instance.OnCastSlot1;
+            @CastSlot2.started += instance.OnCastSlot2;
+            @CastSlot2.performed += instance.OnCastSlot2;
+            @CastSlot2.canceled += instance.OnCastSlot2;
         }
 
         /// <summary>
@@ -1468,6 +1497,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @CastSlot1.started -= instance.OnCastSlot1;
             @CastSlot1.performed -= instance.OnCastSlot1;
             @CastSlot1.canceled -= instance.OnCastSlot1;
+            @CastSlot2.started -= instance.OnCastSlot2;
+            @CastSlot2.performed -= instance.OnCastSlot2;
+            @CastSlot2.canceled -= instance.OnCastSlot2;
         }
 
         /// <summary>
@@ -1845,6 +1877,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCastSlot1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CastSlot2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCastSlot2(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

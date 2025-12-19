@@ -19,7 +19,6 @@ namespace Spells {
         private bool _hasHitSomething = false; // Prevent multiple hits
         
         public override void Spawned() {
-            Debug.Log($"FireballProjectile.Spawned() called - HasStateAuthority: {Object.HasStateAuthority}, IsServer: {Runner.IsServer}, IsClient: {Runner.IsClient}");
             
             if (Object.HasStateAuthority) {
                 SpawnTime = Runner.SimulationTime;
@@ -27,9 +26,7 @@ namespace Spells {
                 Direction = transform.forward.normalized;
                 IsInitialized = true;
                 
-                Debug.Log($"FireballProjectile initialized on server - Direction: {Direction}, Speed: {speed}, Lifetime: {lifetime}, Position: {transform.position}");
             } else {
-                Debug.LogWarning($"FireballProjectile spawned but does NOT have state authority! This fireball will not move.");
             }
         }
         
@@ -42,17 +39,11 @@ namespace Spells {
                 CustomScale = customScale;
                 IsInitialized = true;
                 
-                // Force player fireballs to do 100 damage for testing (overriding Inspector value)
-                if (!IsCasterBoss) {
-                    damage = 100f;
-                }
-                
                 // Apply scale immediately if specified
                 if (customScale > 0f) {
                     transform.localScale = Vector3.one * customScale;
                 }
                 
-                Debug.Log($"FireballProjectile Init called with direction: {Direction}, IsCasterBoss: {IsCasterBoss}, Speed: {customSpeed}, Scale: {customScale}, Damage: {damage}");
             }
         }
         
@@ -66,22 +57,14 @@ namespace Spells {
         public override void FixedUpdateNetwork() {
             // Safety check - ensure Runner and Object are valid
             if (Runner == null || Object == null) return;
-            
-            // Debug every 30 ticks to avoid spam
-            if (Runner.Tick % 30 == 0) {
-                Debug.Log($"FixedUpdateNetwork - HasStateAuthority: {Object.HasStateAuthority}, IsInitialized: {IsInitialized}, Direction: {Direction}");
-            }
+
             
             // Only the server/host (state authority) should move and manage the fireball
             if (!Object.HasStateAuthority) {
-                if (Runner.Tick % 60 == 0) {
-                    Debug.LogWarning("FireballProjectile FixedUpdateNetwork called but no state authority!");
-                }
                 return;
             }
             
             if (!IsInitialized) {
-                Debug.LogWarning("FireballProjectile not initialized yet!");
                 return;
             }
             
@@ -103,15 +86,11 @@ namespace Spells {
             
             // Safety check again after collision check (in case object was despawned)
             if (Runner == null || Object == null) return;
-            
-            if (Runner.Tick % 30 == 0) {
-                Debug.Log($"Fireball moving - Position: {transform.position}, Movement: {movement}, DeltaTime: {deltaTime}");
-            }
+
             
             // Destroy after lifetime expires
             float elapsed = Runner.SimulationTime - SpawnTime;
             if (elapsed >= lifetime) {
-                Debug.Log($"Fireball lifetime expired ({elapsed} >= {lifetime}), despawning");
                 if (Runner != null && Object != null) {
                     Runner.Despawn(Object);
                 }
@@ -187,12 +166,6 @@ namespace Spells {
                                 playerHealth = player.GetComponentInChildren<PlayerHealth>();
                             }
                             
-                            if (playerHealth != null) {
-                                playerHealth.TakeDamage(damage);
-                                Debug.Log($"Boss fireball hit player {hit.name} for {damage} damage!");
-                            } else {
-                                Debug.LogWarning($"Boss fireball hit player {hit.name} but no PlayerHealth component found!");
-                            }
                             _hasHitSomething = true;
                             
                             // Despawn the fireball after hitting player
@@ -213,10 +186,8 @@ namespace Spells {
                     }
                     
                     if (boss != null) {
-                        Debug.Log($"Player fireball hit boss {hit.name}! Dealing {damage} damage.");
                         _hasHitSomething = true; // Mark as hit to prevent multiple hits
                         boss.TakeDamage(damage);
-                        Debug.Log($"Fireball hit boss {hit.name} for {damage} damage!");
                         
                         // Despawn the fireball after hitting boss
                         if (Runner != null && Object != null) {
@@ -233,31 +204,25 @@ namespace Spells {
         [SerializeField] private float damage = 100f; // Damage dealt by fireball
         
         private void OnTriggerEnter(Collider other) {
-            Debug.Log($"OnTriggerEnter called! Collider: {other?.name}, HasStateAuthority: {Object?.HasStateAuthority}");
             
             // Safety checks
             if (Runner == null || Object == null) {
-                Debug.LogWarning("Fireball collision: Runner or Object is null");
                 return;
             }
             
             if (!Object.HasStateAuthority) {
-                Debug.LogWarning($"Fireball collision: No state authority. HasStateAuthority: {Object.HasStateAuthority}");
                 return;
             }
             
             // Don't collide with the caster
             if (other == null || other.transform == null) {
-                Debug.LogWarning("Fireball collision: other or transform is null");
                 return;
             }
             
             if (other.transform.root == transform.root) {
-                Debug.Log($"Fireball collision: Ignoring collision with caster ({other.name})");
                 return;
             }
             
-            Debug.Log($"Fireball collision detected with: {other.name}");
             
             // Check what we hit based on who cast the fireball
             bool shouldDespawn = false;
@@ -295,9 +260,6 @@ namespace Spells {
                         
                         if (playerHealth != null) {
                             playerHealth.TakeDamage(damage);
-                            Debug.Log($"Boss fireball hit player {other.name} for {damage} damage!");
-                        } else {
-                            Debug.LogWarning($"Boss fireball hit player {other.name} but no PlayerHealth component found!");
                         }
                         shouldDespawn = true;
                     }
@@ -313,17 +275,14 @@ namespace Spells {
                 }
                 
                 if (boss != null) {
-                    Debug.Log($"Player fireball hit boss {other.name}! Dealing {damage} damage.");
                     // Deal damage to the boss
                     boss.TakeDamage(damage);
-                    Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
                     shouldDespawn = true;
                 }
             }
             
             // Despawn the fireball after collision
             if (shouldDespawn) {
-                Debug.Log($"Fireball collided with {other.name}, despawning");
                 if (Runner != null && Object != null) {
                     Runner.Despawn(Object);
                 }
@@ -333,7 +292,6 @@ namespace Spells {
         private void OnCollisionEnter(Collision collision) {
             // Also handle regular collisions (non-trigger)
             if (collision != null && collision.collider != null) {
-                Debug.Log($"OnCollisionEnter called! Collider: {collision.collider.name}");
                 HandleCollision(collision.collider);
             }
         }
@@ -341,27 +299,22 @@ namespace Spells {
         private void HandleCollision(Collider other) {
             // Safety checks
             if (Runner == null || Object == null) {
-                Debug.LogWarning("Fireball collision: Runner or Object is null");
                 return;
             }
             
             if (!Object.HasStateAuthority) {
-                Debug.LogWarning($"Fireball collision: No state authority. HasStateAuthority: {Object.HasStateAuthority}");
                 return;
             }
             
             // Don't collide with the caster
             if (other == null || other.transform == null) {
-                Debug.LogWarning("Fireball collision: other or transform is null");
                 return;
             }
             
             if (other.transform.root == transform.root) {
-                Debug.Log($"Fireball collision: Ignoring collision with caster ({other.name})");
                 return;
             }
             
-            Debug.Log($"Fireball collision detected with: {other.name}");
             
             // Check what we hit based on who cast the fireball
             bool shouldDespawn = false;
@@ -399,9 +352,6 @@ namespace Spells {
                         
                         if (playerHealth != null) {
                             playerHealth.TakeDamage(damage);
-                            Debug.Log($"Boss fireball hit player {other.name} for {damage} damage!");
-                        } else {
-                            Debug.LogWarning($"Boss fireball hit player {other.name} but no PlayerHealth component found!");
                         }
                         shouldDespawn = true;
                     }
@@ -417,17 +367,14 @@ namespace Spells {
                 }
                 
                 if (boss != null) {
-                    Debug.Log($"Player fireball hit boss {other.name}! Dealing {damage} damage.");
                     // Deal damage to the boss
                     boss.TakeDamage(damage);
-                    Debug.Log($"Fireball hit boss {other.name} for {damage} damage!");
                     shouldDespawn = true;
                 }
             }
             
             // Despawn the fireball after collision
             if (shouldDespawn) {
-                Debug.Log($"Fireball collided with {other.name}, despawning");
                 if (Runner != null && Object != null) {
                     Runner.Despawn(Object);
                 }

@@ -12,17 +12,14 @@ namespace PlayerStateMachine {
             // Explicitly set both animator parameters to ensure transition works
             _ctx.SetAnimationBool(_ctx.IsGroundedHash, true);
             _ctx.SetAnimationBool(_ctx.IsJumpingHash, false);
-            Debug.Log("Entered GroundedState");
         }
 
         public override void UpdateState() {
             CheckSwitchStates();
-            Debug.Log("Updated GroundedState");
         }
 
         public override void ExitState() {
             _ctx.SetAnimationBool(_ctx.IsGroundedHash, false);
-            Debug.Log("Exiting GroundedState");
         }
 
         public override void CheckSwitchStates() {
@@ -41,9 +38,6 @@ namespace PlayerStateMachine {
             }
             else if (_ctx.IsMovementPressed && _ctx.IsSprintPressed) {
                 SetSubState(_factory.Sprint());
-            }
-            else {
-                Debug.LogError("Error in initializing substate for grounded state");
             }
         }
     }

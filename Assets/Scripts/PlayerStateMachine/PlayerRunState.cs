@@ -12,11 +12,9 @@ namespace PlayerStateMachine {
             _ctx.SetAnimationBool(_ctx.IsRunningHash, true);
             _ctx.SetAnimationBool(_ctx.IsSprintingHash, false);
             
-            Debug.Log("Entering Run State");
         }
 
         public override void UpdateState() {
-            Debug.Log("Updating Run State");
             CheckSwitchStates();
             
             // Calculate camera-relative movement
@@ -26,7 +24,6 @@ namespace PlayerStateMachine {
         }
 
         public override void ExitState() {
-            Debug.Log("Exiting Run State");
         }
 
         public override void CheckSwitchStates() {
@@ -39,7 +36,6 @@ namespace PlayerStateMachine {
         }
 
         public override void InitializeSubState() {
-            Debug.Log("Not implemented yet: InitializeSubState in RunState");
         }
     }
 }

@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 2907170902841377911}
   - component: {fileID: 4912521206918695418}
   - component: {fileID: 3832429251822740897}
+  - component: {fileID: 4203826918030393494}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -85,9 +86,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87ae41a1a9244b50a7b6271df20e116d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Spells.PlayerSpellManager
+  fireballPrefab:
+    RawGuidValue: 00000000000000000000000000000000
   fireballCooldown: 5
   _EquippedSpellPrefabs:
   - RawGuidValue: a1f253d50add84e3086dafad5f1a59d3
+  golemCooldown: 0
+  golemSpawnHeightOffset: 2
 --- !u!114 &8662791331761705132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,6 +145,7 @@ MonoBehaviour:
   - {fileID: 5807742704814417808}
   - {fileID: 2907170902841377911}
   - {fileID: 3832429251822740897}
+  - {fileID: 4203826918030393494}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &1439435933179755579
 CharacterController:
@@ -254,6 +260,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHealth: 100
+  _IsDead:
+    _value: 0
+--- !u!114 &4203826918030393494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8485779231971945138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf675d02ed881924ea92525162e1b976, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMana
+  maxMana: 250
+  regenRate: 2
 --- !u!1001 &5077391671423199328
 PrefabInstance:
   m_ObjectHideFlags: 0

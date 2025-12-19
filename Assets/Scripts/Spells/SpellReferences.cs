@@ -10,6 +10,12 @@ namespace Spells {
         [SerializeField] private AudioClip fireballCastSound;
         public AudioClip FireballCastSound => fireballCastSound;
 
+        [SerializeField] private NetworkPrefabRef golemPrefab;
+        public NetworkPrefabRef Golem => golemPrefab;
+
+        [SerializeField] private NetworkPrefabRef dragonPetPrefab;
+        public NetworkPrefabRef DragonPet => dragonPetPrefab;
+
         public static SpellReferences Instance { get; private set; }
 
         private void Awake() {

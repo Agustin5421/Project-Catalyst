@@ -12,6 +12,7 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
     [SerializeField] NetworkRunner _runner; 
     
     InputSystem_Actions _actions;
+    private Camera _camera;
 
     Vector2 _move;
     bool _jump;
@@ -21,6 +22,8 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
     void OnEnable() {
         _actions = new InputSystem_Actions();
         _actions.Enable();
+        
+        _camera = Camera.main;
 
         _actions.Player.Move.performed  += ctx => _move = ctx.ReadValue<Vector2>();
         _actions.Player.Move.canceled   += ctx => _move = Vector2.zero;
@@ -41,12 +44,20 @@ public class InputProvider : MonoBehaviour, INetworkRunnerCallbacks {
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input) {
+        if (_camera == null) _camera = Camera.main;
+        
+        // Use E key for second ability (Summon Golems) based on user Input Actions
+        bool castSlot2 = UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.eKey.isPressed;
+        if (castSlot2) Debug.Log("DEBUG: InputProvider detected E key press!");
+        
         var data = new NetInputData {
             Move   = _move,
             Jump   = _jump,
             Sprint = _sprint,
             CastSlot1 = _castSlot1,
-            SpellIndex = 0 // Fireball is in slot 0
+            CastSlot2 = castSlot2,
+            SpellIndex = 0, // Fireball is in slot 0
+            CameraYaw = _camera != null ? _camera.transform.eulerAngles.y : 0
         };
         input.Set(data);
     }
